@@ -1,0 +1,205 @@
+<title>템노리 콘텐츠 캘린더</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: 장바구니 영수증처럼 한 줄씩 쌓이는 주간 목록. 위에 요약, 아래에 회차 줄. */
+:root{
+  --bg:#fbf8f5; --surface:#ffffff; --fg:#2a211c; --muted:#7a6a60; --line:#ecdfd5;
+  --accent:#e8521d; --accent-soft:#fde5d9; --gold:#b9770e; --gold-soft:#fbefd6;
+  --ok:#2f7d4f; --ok-soft:#dff1e6; --wait:#5a6472; --wait-soft:#e9edf2;
+  --font-display:"Do Hyeon","IBM Plex Sans KR",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1b1613; --surface:#241d19; --fg:#f3ebe5; --muted:#b3a297; --line:#3a2f29;
+  --accent:#ff7a45; --accent-soft:#4a2617; --gold:#f0b44c; --gold-soft:#3d2f14;
+  --ok:#6fd39a; --ok-soft:#173a26; --wait:#b6c0cc; --wait-soft:#2b323b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1b1613; --surface:#241d19; --fg:#f3ebe5; --muted:#b3a297; --line:#3a2f29;
+  --accent:#ff7a45; --accent-soft:#4a2617; --gold:#f0b44c; --gold-soft:#3d2f14;
+  --ok:#6fd39a; --ok-soft:#173a26; --wait:#b6c0cc; --wait-soft:#2b323b; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.6 var(--font-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:860px;margin:0 auto;padding-block:28px 56px;display:flex;flex-direction:column;gap:28px}
+header{display:flex;flex-direction:column;gap:8px}
+.brand{font:400 15px var(--font-display);color:var(--accent);letter-spacing:.04em}
+h1{font:400 clamp(30px,6vw,42px)/1.15 var(--font-display);margin:0;text-wrap:balance}
+.lede{margin:0;color:var(--muted);max-width:62ch}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.rule{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.rule b{display:block;font-size:12px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+.rule span{font-weight:700}
+.filters{display:flex;flex-wrap:wrap;gap:8px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding-block:10px;z-index:5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.filters button{font:500 14px var(--font-body);color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.filters button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.week{display:flex;flex-direction:column;gap:6px}
+.week h2{font:400 18px var(--font-display);margin:0;color:var(--muted)}
+.week h2 em{font-style:normal;color:var(--accent)}
+.row{display:grid;grid-template-columns:62px 1fr auto;gap:14px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.row.big{border-left:4px solid var(--gold)}
+.date{font-variant-numeric:tabular-nums;line-height:1.2}
+.date .d{font:400 22px var(--font-display);display:block}
+.date .w{font-size:12px;color:var(--muted)}
+.body{min-width:0;display:flex;flex-direction:column;gap:4px}
+.top{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ep{font-size:12px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.theme{font-size:12px;color:var(--muted)}
+.prod{font-weight:700;font-size:16px}
+.hook{color:var(--muted);font-size:14px}
+.hook::before{content:"“"}.hook::after{content:"”"}
+.chips{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.pill{font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.p-low{background:var(--accent-soft);color:var(--accent)}
+.p-mid{background:var(--wait-soft);color:var(--wait)}
+.p-high{background:var(--gold-soft);color:var(--gold)}
+.p-set{background:var(--wait-soft);color:var(--fg)}
+.s-done{background:var(--ok-soft);color:var(--ok)}
+.s-sched{background:var(--accent-soft);color:var(--accent)}
+.s-wait{background:transparent;color:var(--muted);border:1px dashed var(--line)}
+.need{font-size:12px;color:var(--muted)}
+.cost{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.cost h2{font:400 20px var(--font-display);margin:0}
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);font-size:14px}
+th{color:var(--muted);font-weight:500}
+td.n{text-align:right}
+.note{color:var(--muted);font-size:13px;margin:0}
+.send{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:0;padding:0;list-style:none}
+.send li{background:var(--bg);border-radius:8px;padding:10px 12px;font-size:14px}
+@media (max-width:520px){.row{grid-template-columns:52px 1fr}.chips{grid-column:2;flex-direction:row;flex-wrap:wrap;align-items:center}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">TEMNORI · 템노리</div>
+    <h1>템노리 콘텐츠 캘린더</h1>
+    <p class="lede">11월~12월 쿠팡 파트너스 쇼핑 쇼츠 일정입니다. 월·수·금 낮 12시에 인스타그램, 틱톡, 스레드에 동시에 올립니다.</p>
+  </header>
+
+  <section class="rules" aria-label="운영 원칙">
+    <div class="rule"><b>게시 시간</b><span>월·수·금 12:00</span></div>
+    <div class="rule"><b>월·수</b><span>1~5만 원대 충동구매템</span></div>
+    <div class="rule"><b>금요일</b><span>10만 원 이상 고가템</span></div>
+    <div class="rule"><b>자료 마감</b><span>게시 3일 전까지</span></div>
+  </section>
+
+  <nav class="filters" aria-label="회차 필터">
+    <button type="button" id="f-all" data-f="all" aria-pressed="true">전체</button>
+    <button type="button" id="f-high" data-f="high">고가템</button>
+    <button type="button" id="f-low" data-f="low">저가·중가</button>
+    <button type="button" id="f-wait" data-f="wait">자료 필요</button>
+  </nav>
+
+  <main id="list"></main>
+
+  <section class="cost" aria-labelledby="cost-h">
+    <h2 id="cost-h">제작 비용 계획 (일레븐랩스 크레딧)</h2>
+    <div class="tablebox"><table>
+      <thead><tr><th>구성</th><th>적용</th><th class="n">회차당</th></tr></thead>
+      <tbody>
+        <tr><td>기본안: 후킹 영상 + 이미지 3장 + 내레이션</td><td>금요일 고가템</td><td class="n">약 4,000</td></tr>
+        <tr><td>절약안: 이미지 4장 + 확대 효과 + 내레이션</td><td>월·수 저가템</td><td class="n">약 2,000</td></tr>
+        <tr><td>재편집 특집</td><td>22·24회차</td><td class="n">0</td></tr>
+        <tr><td><b>21회차 합계 (예상)</b></td><td></td><td class="n"><b>약 55,000</b></td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">잔액 약 65,000 크레딧 (11/10 기준). 매 회차 실제 조건으로 견적을 받아 승인 후 제작합니다.</p>
+  </section>
+
+  <section class="cost" aria-labelledby="send-h">
+    <h2 id="send-h">회차마다 보내주실 것</h2>
+    <ul class="send">
+      <li>쿠팡 파트너스 링크</li>
+      <li>상품 사진 2~3장</li>
+      <li>가격·별점·리뷰 수 캡처</li>
+      <li>상세 스펙 캡처</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+const EPS = [
+  {ep:1, date:"2026-11-09", theme:"욕실", prod:"실리콘 배수구 거름망 2개입", price:"low", hook:"배수구 머리카락, 아직도 손으로 빼세요?", status:"done"},
+  {ep:2, date:"2026-11-10", theme:"욕실 청소", prod:"무선 전동 욕실 청소기", price:"mid", hook:"욕실 청소, 아직도 허리 숙여서 하세요?", status:"sched"},
+  {ep:3, date:"2026-11-11", theme:"물걸레", prod:"에브리봇 엣지2 물걸레 로봇청소기", price:"high", hook:"물걸레질, 아직도 무릎 꿇고 하세요?", status:"sched"},
+  {ep:4, date:"2026-11-13", theme:"겨울 침구", prod:"무선 침구 청소기 (UV·진드기)", price:"high", hook:"이불 털면 먼지만 날려요"},
+  {ep:5, date:"2026-11-16", theme:"냉장고 정리", prod:"냉장고 정리 트레이 세트", price:"low", hook:"냉장고 열 때마다 한숨 쉬던 분들"},
+  {ep:6, date:"2026-11-18", theme:"김장", prod:"대형 김장 매트·비닐 세트", price:"low", hook:"올해 김장, 거실 바닥 지키세요"},
+  {ep:7, date:"2026-11-20", theme:"김장·보관", prod:"전동 진공 밀폐용기", price:"mid", hook:"김치 냄새 냉장고에 다 배죠?"},
+  {ep:8, date:"2026-11-23", theme:"겨울 대비", prod:"창틀·틈새 청소 브러시", price:"low", hook:"겨울 전 창틀 청소, 3분이면 끝"},
+  {ep:9, date:"2026-11-25", theme:"결로·외풍", prod:"창문 단열 에어캡 / 문풍지", price:"low", hook:"난방비 새는 곳, 여기예요"},
+  {ep:10, date:"2026-11-27", theme:"블랙프라이데이", prod:"음식물 처리기", price:"high", hook:"음식물 쓰레기 버리러 나가기 싫은 날", special:true},
+  {ep:11, date:"2026-11-30", theme:"주방", prod:"실리콘 수세미 / 일회용 행주", price:"low", hook:"행주 냄새, 삶아도 안 빠지죠?"},
+  {ep:12, date:"2026-12-02", theme:"겨울 건조", prod:"가습기", price:"mid", hook:"아침마다 목 칼칼하신 분"},
+  {ep:13, date:"2026-12-04", theme:"연말 대청소", prod:"무선 물걸레 청소기 (진공+물걸레)", price:"high", hook:"청소기 돌리고 또 걸레질하세요?"},
+  {ep:14, date:"2026-12-07", theme:"욕실", prod:"곰팡이 제거 젤", price:"low", hook:"실리콘 곰팡이, 문질러도 안 지워지죠?"},
+  {ep:15, date:"2026-12-09", theme:"정리", prod:"이불 압축 수납팩 (전동 펌프)", price:"low", hook:"여름 이불이 옷장 반을 차지해요"},
+  {ep:16, date:"2026-12-11", theme:"연말 대청소", prod:"스팀 청소기", price:"high", hook:"약품 없이 찌든 때 지우는 법"},
+  {ep:17, date:"2026-12-14", theme:"주방", prod:"싱크대 수납 정리대", price:"low", hook:"싱크대 밑, 열기 무섭지 않으세요?"},
+  {ep:18, date:"2026-12-16", theme:"세탁", prod:"세탁조 클리너", price:"low", hook:"빨래에서 쉰내 나면 이거부터"},
+  {ep:19, date:"2026-12-18", theme:"연말 선물", prod:"식기세척기 (6~8인용)", price:"high", hook:"설거지 때문에 싸우는 집 손!", special:true},
+  {ep:20, date:"2026-12-21", theme:"선물", prod:"3만 원 이하 집들이 선물 모음", price:"low", hook:"센스 있는 집들이 선물 고민 끝"},
+  {ep:21, date:"2026-12-23", theme:"크리스마스", prod:"주방 소형가전 (전기주전자 등)", price:"mid", hook:"크리스마스 홈파티 준비 끝"},
+  {ep:22, date:"2026-12-25", theme:"크리스마스 특집", prod:"고가템 선물 BEST 3 (재편집)", price:"set", hook:"받으면 진짜 좋아하는 살림 선물", special:true, reuse:true},
+  {ep:23, date:"2026-12-28", theme:"새해 정리", prod:"서랍 칸막이·옷걸이 세트", price:"low", hook:"새해엔 옷장부터 바꿔요"},
+  {ep:24, date:"2026-12-30", theme:"연말 결산", prod:"템노리 반응 좋았던 TOP 5 (재편집)", price:"set", hook:"올해 제일 많이 산 살림템", special:true, reuse:true}
+];
+const WD = ["일","월","화","수","목","금","토"];
+const PRICE = {low:["저가","p-low"], mid:["중가","p-mid"], high:["고가","p-high"], set:["모음","p-set"]};
+function parse(s){const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}
+function md(d){return (d.getMonth()+1)+"/"+d.getDate()}
+function weekKey(d){const m=new Date(d);m.setDate(d.getDate()-((d.getDay()+6)%7));return m}
+function statusOf(e){
+  if(e.status==="done") return ["게시 완료","s-done",""];
+  if(e.status==="sched") return ["예약됨","s-sched",""];
+  if(e.reuse) return ["재편집 예정","s-sched",""];
+  const due=parse(e.date); due.setDate(due.getDate()-3);
+  return ["자료 필요","s-wait","자료 마감 "+md(due)+"("+WD[due.getDay()]+")"];
+}
+let filter="all";
+try{const f=localStorage.getItem("temnori-filter"); if(f) filter=f;}catch(e){}
+function render(){
+  document.querySelectorAll(".filters button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.f===filter?"true":"false"));
+  const list=document.getElementById("list"); list.innerHTML="";
+  const items=EPS.filter(e=>{
+    if(filter==="high") return e.price==="high";
+    if(filter==="low") return e.price==="low"||e.price==="mid";
+    if(filter==="wait") return !e.status && !e.reuse;
+    return true;
+  });
+  const groups=new Map();
+  items.forEach(e=>{const k=+weekKey(parse(e.date)); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(e);});
+  const box=document.createElement("div"); box.style.cssText="display:flex;flex-direction:column;gap:22px";
+  if(!items.length){const p=document.createElement("p");p.className="note";p.textContent="해당하는 회차가 없습니다.";box.append(p);}
+  for(const [k,arr] of groups){
+    const mon=new Date(k), sun=new Date(k); sun.setDate(mon.getDate()+6);
+    const sec=document.createElement("section"); sec.className="week";
+    const sp=arr.find(e=>e.special);
+    sec.innerHTML=`<h2>${md(mon)} ~ ${md(sun)}${sp?` · <em>${sp.theme}</em>`:""}</h2>`;
+    arr.forEach(e=>{
+      const d=parse(e.date), [pl,pc]=PRICE[e.price], [sl,sc,need]=statusOf(e);
+      const row=document.createElement("article"); row.className="row"+(e.price==="high"?" big":"");
+      row.innerHTML=`<div class="date"><span class="d">${md(d)}</span><span class="w">${WD[d.getDay()]}요일</span></div>
+        <div class="body"><div class="top"><span class="ep">${e.ep}회차</span><span class="theme">· ${e.theme}</span></div>
+        <div class="prod"></div><div class="hook"></div>${need?`<div class="need">${need}</div>`:""}</div>
+        <div class="chips"><span class="pill ${pc}">${pl}</span><span class="pill ${sc}">${sl}</span></div>`;
+      row.querySelector(".prod").textContent=e.prod;
+      row.querySelector(".hook").textContent=e.hook;
+      sec.append(row);
+    });
+    box.append(sec);
+  }
+  list.append(box);
+}
+document.querySelectorAll(".filters button").forEach(b=>b.addEventListener("click",()=>{
+  filter=b.dataset.f; try{localStorage.setItem("temnori-filter",filter)}catch(e){} render();
+}));
+render();
+</script>
