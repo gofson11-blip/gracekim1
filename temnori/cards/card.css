@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Dodum&family=Do+Hyeon&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #ddd; }
+
+.slide {
+  width: 1080px; height: 1350px; position: relative; overflow: hidden;
+  background-color: #fbf7ef;
+  /* 노트 줄 */
+  background-image: repeating-linear-gradient(to bottom, transparent 0 63px, #e6ddcd 63px 65px);
+  background-position: 0 40px;
+  font-family: 'Gowun Dodum', 'Noto Sans CJK KR', sans-serif;
+  color: #2b2622;
+  margin-bottom: 20px;
+}
+/* 왼쪽 여백 빨간 줄 */
+.slide::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 118px;
+  width: 3px; background: #f0b4a6;
+}
+.tape {
+  position: absolute; top: 34px; right: 70px; transform: rotate(4deg);
+  background: rgba(255,163,77,.82); color: #fff; padding: 12px 26px 10px;
+  font-family: 'Do Hyeon', sans-serif; font-size: 34px; letter-spacing: 1px;
+}
+.page {
+  position: absolute; bottom: 46px; right: 70px;
+  font-family: 'Gaegu', cursive; font-size: 40px; color: #9a8f82;
+}
+.handle {
+  position: absolute; bottom: 46px; left: 150px;
+  font-family: 'Gaegu', cursive; font-size: 38px; color: #9a8f82;
+}
+.body { position: absolute; left: 160px; right: 90px; top: 260px; }
+
+h1 {
+  font-family: 'Do Hyeon', sans-serif; font-weight: 400;
+  font-size: 118px; line-height: 1.18; letter-spacing: -2px;
+}
+h2 {
+  font-family: 'Do Hyeon', sans-serif; font-weight: 400;
+  font-size: 92px; line-height: 1.2; letter-spacing: -1px; margin-top: 26px;
+}
+p { font-size: 46px; line-height: 1.75; margin-top: 34px; }
+.small { font-size: 40px; color: #6d645a; }
+
+/* 형광펜 */
+.hl { background: linear-gradient(to top, transparent 6%, #ffe36e 6% 44%, transparent 44%); padding: 0 6px; }
+.hl-o { background: linear-gradient(to top, transparent 6%, #ffc49a 6% 44%, transparent 44%); padding: 0 6px; }
+
+/* 손글씨 메모 */
+.note {
+  font-family: 'Gaegu', cursive; font-weight: 700; color: #e2611b;
+  font-size: 54px; display: inline-block; transform: rotate(-3deg);
+}
+.num {
+  display: inline-block; font-family: 'Gaegu', cursive; font-weight: 700;
+  font-size: 64px; color: #e2611b; border: 5px solid #e2611b;
+  border-radius: 48% 52% 50% 46% / 52% 46% 54% 48%;
+  width: 104px; height: 100px; text-align: center; line-height: 92px;
+  transform: rotate(-6deg);
+}
+.x { color: #d0412b; font-family: 'Gaegu', cursive; font-weight: 700; }
+.o { color: #2f8a4c; font-family: 'Gaegu', cursive; font-weight: 700; }
+
+.memo {
+  margin-top: 54px; background: #fff3a8; padding: 34px 40px 30px;
+  transform: rotate(-1.4deg); box-shadow: 3px 5px 0 rgba(0,0,0,.08);
+  font-size: 44px; line-height: 1.6; width: 92%;
+}
+.memo b { font-family: 'Gaegu', cursive; font-size: 54px; color: #c4521a; }
+.arrow { font-family: 'Gaegu', cursive; font-size: 60px; color: #e2611b; }
