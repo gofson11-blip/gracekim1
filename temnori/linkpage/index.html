@@ -7,6 +7,9 @@
 <meta name="description" content="템노리 영상에 나온 살림템 모아보기">
 <meta property="og:title" content="템노리 살림템 링크">
 <meta property="og:description" content="영상에 나온 살림템, 여기 다 모아뒀어요">
+<meta property="og:image" content="img/banner.jpg">
+<link rel="icon" href="img/icon.png">
+<link rel="apple-touch-icon" href="img/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&family=Gowun+Dodum&family=Do+Hyeon&display=swap" rel="stylesheet">
@@ -20,12 +23,14 @@
     font-family:'Gowun Dodum','Noto Sans KR',sans-serif; line-height:1.5;
     min-height:100vh;
   }
-  .wrap { max-width:480px; margin:0 auto; padding:28px 16px 40px; }
+  .wrap { max-width:480px; margin:0 auto; padding:16px 16px 40px; }
   header { text-align:center; margin-bottom:22px; }
-  .logo {
-    display:inline-block; background:var(--tape); color:#fff; transform:rotate(-2deg);
-    font-family:'Do Hyeon',sans-serif; font-size:30px; padding:6px 18px 4px; letter-spacing:1px;
-  }
+  .banner { display:block; width:100%; height:auto; border-radius:14px; box-shadow:0 2px 0 #2b262214; }
+  .profile { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:14px; }
+  .logo { width:56px; height:56px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.12); }
+  .pname { text-align:left; line-height:1.25; }
+  .pname b { font-family:'Do Hyeon',sans-serif; font-weight:400; font-size:22px; }
+  .pname span { display:block; font-size:13px; color:var(--sub); }
   .hand { font-family:'Gaegu',cursive; font-weight:700; color:var(--orange); font-size:22px; margin-top:12px; display:block; }
   .sub { color:var(--sub); font-size:15px; margin-top:4px; }
   .sns { display:flex; justify-content:center; gap:8px; margin-top:14px; flex-wrap:wrap; }
@@ -58,7 +63,11 @@
 <body>
 <div class="wrap">
   <header>
-    <span class="logo">템노리</span>
+    <img class="banner" src="img/banner.jpg" alt="템노리 TEMNORI - 생활 속 괜찮은 아이템을 쉽고 빠르게" width="1200" height="438">
+    <div class="profile">
+      <img class="logo" src="img/logo.png" alt="템노리 로고" width="56" height="56">
+      <div class="pname"><b>템노리</b><span>@temnori.shop</span></div>
+    </div>
     <span class="hand">영상에 나온 살림템, 여기 다 모아뒀어요</span>
     <p class="sub">월·수·금 12시에 새 살림템이 올라와요</p>
     <nav class="sns">
