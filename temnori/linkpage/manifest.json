@@ -1,0 +1,13 @@
+{
+  "name": "템노리 TEMNORI",
+  "short_name": "템노리",
+  "description": "발견하는 재미, 고르는 재미 — 생활 속 괜찮은 살림템",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#fbf7ef",
+  "theme_color": "#e2611b",
+  "icons": [
+    { "src": "img/icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

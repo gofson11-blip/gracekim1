@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>템노리 살림 꿀팁</title>
+<meta name="description" content="템노리 살림노트 카드뉴스 모음">
+<meta property="og:title" content="템노리 살림 꿀팁">
+<meta property="og:description" content="저장해두고 보는 살림노트 모음">
+<meta property="og:image" content="img/banner.jpg">
+<link rel="icon" href="img/icon.png">
+<link rel="apple-touch-icon" href="img/icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#e2611b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="템노리">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&family=Gowun+Dodum&family=Do+Hyeon&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <div id="top"></div>
+
+  <p class="label">템노리 살림노트 모음 📌</p>
+  <p class="sub" style="margin:-4px 0 16px">화·목 12시에 새 꿀팁이 올라와요. 옆으로 넘겨서 보세요.</p>
+  <main id="tips"></main>
+
+  <footer>
+    <span class="hand">궁금한 살림 고민 있으면 댓글로 알려주세요</span>
+    <p>© 템노리 · @temnori.shop</p>
+  </footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+renderTop("tips.html");
+const tips = released(TIPS);
+document.getElementById("tips").innerHTML = tips.length ? tips.map((t, idx) => `
+  <section class="tip">
+    <div class="tag">살림노트 #${t.no}${idx===0 ? '<span class="new">NEW</span>' : ''}</div>
+    <h3>${esc(t.title)}</h3>
+    <div class="slides">
+      ${Array.from({length:t.count}, (_, n) => `<img src="${t.dir}/${n+1}.jpg" alt="${esc(t.title)} ${n+1}/${t.count}">`).join("")}
+    </div>
+    <p class="hint">← 넘겨보기 (${t.count}장)</p>
+  </section>`).join("")
+  : '<p class="empty">첫 살림노트는 11월 17일(화) 낮 12시에 올라와요 ✏️</p>';
+</script>
+</body>
+</html>
