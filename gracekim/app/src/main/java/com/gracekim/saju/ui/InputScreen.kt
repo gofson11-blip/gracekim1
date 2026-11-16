@@ -22,6 +22,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -99,6 +100,10 @@ fun InputScreen(
     form: FormData,
     onFormChange: (FormData) -> Unit,
     onSubmit: (FormData) -> Unit,
+    title: String = "오늘의 사주",
+    intro: String = "태어난 날과 시간을 입력하면\n사주팔자와 오행, 대운, 오늘의 운세를 풀어 드립니다.",
+    submitLabel: String = "사주 보기",
+    onBack: (() -> Unit)? = null,
 ) {
     var error by rememberSaveable { mutableStateOf<String?>(null) }
     val numberKeyboard = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next)
@@ -107,7 +112,14 @@ fun InputScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("오늘의 사주", fontWeight = FontWeight.Bold) },
+                title = { Text(title, fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    if (onBack != null) {
+                        TextButton(onClick = onBack) {
+                            Text("〈 뒤로", color = MaterialTheme.colorScheme.onPrimary)
+                        }
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
@@ -124,7 +136,7 @@ fun InputScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
-                "태어난 날과 시간을 입력하면\n사주팔자와 오행, 대운을 풀어 드립니다.",
+                intro,
                 style = MaterialTheme.typography.bodyLarge,
             )
 
@@ -228,7 +240,7 @@ fun InputScreen(
                     .fillMaxWidth()
                     .height(52.dp),
             ) {
-                Text("사주 보기", style = MaterialTheme.typography.titleMedium)
+                Text(submitLabel, style = MaterialTheme.typography.titleMedium)
             }
             Spacer(Modifier.height(24.dp))
         }

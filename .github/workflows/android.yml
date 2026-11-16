@@ -7,6 +7,9 @@ on:
       - ".github/workflows/android.yml"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -31,3 +34,14 @@ jobs:
         with:
           name: saju-app-debug-apk
           path: gracekim/app/build/outputs/apk/debug/*.apk
+
+      - name: 휴대폰 다운로드용 릴리스 갱신
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk saju-app.apk
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest saju-app.apk \
+            --target "${{ github.sha }}" \
+            --title "오늘의 사주 최신 버전" \
+            --notes "휴대폰에서 saju-app.apk 를 눌러 내려받은 뒤 설치하세요. (브랜치: ${{ github.ref_name }})"

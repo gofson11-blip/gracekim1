@@ -122,8 +122,7 @@ object SajuCalculator {
         var dayDate = corrected.toLocalDate()
         if (input.time != null && corrected.hour == 23) dayDate = dayDate.plusDays(1)
         if (input.time == null) dayDate = solarDate
-        val jdn = dayDate.toEpochDay() + 2440588L
-        val dayPillar = Pillar.ofIndex(((jdn + 49) % 60).toInt())
+        val dayPillar = dayPillarOf(dayDate)
 
         val hourPillar = input.time?.let {
             val minutes = corrected.hour * 60 + corrected.minute
@@ -156,6 +155,9 @@ object SajuCalculator {
             daeun = daeun,
         )
     }
+
+    /** 해당 날짜의 일진(일주) */
+    fun dayPillarOf(date: LocalDate): Pillar = Pillar.ofIndex(((date.toEpochDay() + 2440588L + 49) % 60).toInt())
 
     /** 해당 연도(입춘 이후 기준)의 세운 간지 */
     fun yearPillarOf(year: Int): Pillar = Pillar.ofIndex(year - 4)

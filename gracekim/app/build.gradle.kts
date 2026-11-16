@@ -14,8 +14,19 @@ android {
         applicationId = "com.gracekim.saju"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1.0"
+    }
+
+    signingConfigs {
+        // 테스트 배포용 고정 서명 키 (빌드할 때마다 키가 바뀌면 업데이트 설치가 안 되기 때문).
+        // Google Play 출시용 키는 절대 저장소에 올리지 말고 따로 보관해야 합니다.
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
     }
 
     buildTypes {

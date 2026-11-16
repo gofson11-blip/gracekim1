@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,7 +47,7 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ResultScreen(chart: SajuChart, onBack: () -> Unit) {
+fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Unit) {
     val name = chart.input.name.ifBlank { "나" }
     Scaffold(
         topBar = {
@@ -72,6 +73,17 @@ fun ResultScreen(chart: SajuChart, onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             item { BirthInfo(chart) }
+            item { DailyFortuneCard(chart) }
+            item {
+                Button(
+                    onClick = onCompatibility,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                ) {
+                    Text("💞 궁합 보기", style = MaterialTheme.typography.titleMedium)
+                }
+            }
             item { PillarTable(chart) }
             item { ElementChart(chart) }
             item { DayMasterCard(chart) }
