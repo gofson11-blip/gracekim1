@@ -10,6 +10,11 @@ on:
 permissions:
   contents: write
 
+# 같은 브랜치에서 빌드가 겹치면 이전 빌드를 취소해, 다운로드 링크가 항상 최신 버전이 되게 합니다.
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
