@@ -1,16 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 태극 느낌의 음양 원 -->
+<!-- 사주사랑 아이콘: 하트를 품은 초승달 + 금빛 인연의 고리 (시안 C) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path android:fillColor="#FFF4D6"
-        android:pathData="M54,30a24,24 0,1 1,0 48a24,24 0,1 1,0 -48z" />
-    <path android:fillColor="#E8B04B"
-        android:pathData="M54,30a24,24 0,0 1,0 48a12,12 0,0 1,0 -24a12,12 0,0 0,0 -24z" />
-    <path android:fillColor="#E8B04B"
-        android:pathData="M54,38a4,4 0,1 1,0 8a4,4 0,1 1,0 -8z" />
-    <path android:fillColor="#FFF4D6"
-        android:pathData="M54,62a4,4 0,1 1,0 8a4,4 0,1 1,0 -8z" />
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- 런처 마스크에 잘리지 않도록 안전 영역 안으로 축소 -->
+    <group android:pivotX="54" android:pivotY="54" android:scaleX="0.8" android:scaleY="0.8">
+        <path android:pathData="M20,54a34,34 0 1,0 68,0a34,34 0 1,0 -68,0z" android:strokeWidth="0.9" android:strokeAlpha="0.55">
+            <aapt:attr name="android:strokeColor"><gradient android:type="linear" android:startX="20" android:startY="20" android:endX="88" android:endY="88"><item android:offset="0" android:color="#FFFFE9BE"/><item android:offset="0.55" android:color="#FFF2C984"/><item android:offset="1" android:color="#FFC98E48"/></gradient></aapt:attr>
+        </path>
+        <path android:pathData="M25,54a29,29 0 1,0 58,0a29,29 0 1,0 -58,0z">
+            <aapt:attr name="android:fillColor"><gradient android:type="radial" android:centerX="54" android:centerY="54" android:gradientRadius="29"><item android:offset="0" android:color="#40FFC9A8"/><item android:offset="1" android:color="#00FFC9A8"/></gradient></aapt:attr>
+        </path>
+        <group>
+            <clip-path android:pathData="M28,55a24,24 0 1,0 48,0a24,24 0 1,0 -48,0z"/>
+            <path android:pathData="M28,55a24,24 0 1,0 48,0a24,24 0 1,0 -48,0z M43.5,50a19.5,19.5 0 1,0 39.0,0a19.5,19.5 0 1,0 -39.0,0z" android:fillType="evenOdd">
+                <aapt:attr name="android:fillColor"><gradient android:type="linear" android:startX="28" android:startY="31" android:endX="76" android:endY="79"><item android:offset="0" android:color="#FFFFE9BE"/><item android:offset="0.55" android:color="#FFF2C984"/><item android:offset="1" android:color="#FFC98E48"/></gradient></aapt:attr>
+            </path>
+        </group>
+        <path android:pathData="M63,61.7 C52.12,54.16 51.69,45.17 57.63,44.3 C60.53,43.87 62.42,46.04 63,48.07 C63.58,46.04 65.47,43.87 68.36,44.3 C74.31,45.17 73.88,54.16 63,61.7 Z">
+            <aapt:attr name="android:fillColor"><gradient android:type="linear" android:startX="52" android:startY="44" android:endX="74" android:endY="62"><item android:offset="0" android:color="#FFFFD9C2"/><item android:offset="1" android:color="#FFF08FA8"/></gradient></aapt:attr>
+        </path>
+        <path android:pathData="M84,25 Q84.6,29.4 89,30 Q84.6,30.6 84,35 Q83.4,30.6 79,30 Q83.4,29.4 84,25 Z">
+            <aapt:attr name="android:fillColor"><gradient android:type="linear" android:startX="79" android:startY="25" android:endX="89" android:endY="35"><item android:offset="0" android:color="#FFFFE9BE"/><item android:offset="0.55" android:color="#FFF2C984"/><item android:offset="1" android:color="#FFC98E48"/></gradient></aapt:attr>
+        </path>
+        <path android:pathData="M21.4,78a1.6,1.6 0 1,0 3.2,0a1.6,1.6 0 1,0 -3.2,0z" android:fillColor="#FFE8B66F"/>
+        <path android:pathData="M84,76a1,1 0 1,0 2,0a1,1 0 1,0 -2,0z" android:fillColor="#FFFFF3D6"/>
+    </group>
 </vector>
