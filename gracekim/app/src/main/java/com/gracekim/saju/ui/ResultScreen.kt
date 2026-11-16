@@ -1,9 +1,13 @@
 package com.gracekim.saju.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -11,13 +15,16 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -25,21 +32,32 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gracekim.saju.ads.BannerAd
 import com.gracekim.saju.core.Element
+import com.gracekim.saju.core.Explain
 import com.gracekim.saju.core.Interpretation
 import com.gracekim.saju.core.Pillar
 import com.gracekim.saju.core.SajuCalculator
@@ -47,6 +65,8 @@ import com.gracekim.saju.core.SajuChart
 import com.gracekim.saju.core.TenGod
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlin.math.cos
+import kotlin.math.sin
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,10 +93,11 @@ fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Un
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+            contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             item { BirthInfo(chart) }
+            item { SummaryCard(chart) }
             item { DailyFortuneCard(chart) }
             item {
                 Button(
@@ -88,11 +109,12 @@ fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Un
                     Text("💞 궁합 보기", style = MaterialTheme.typography.titleMedium)
                 }
             }
-            item { PillarTable(chart) }
-            item { ElementChart(chart) }
-            item { DayMasterCard(chart) }
+            item { PillarSection(chart) }
+            item { OhaengSection(chart) }
+            item { PersonaCard(chart) }
             item { DaeunCard(chart) }
             item { YearFortuneCard(chart) }
+            item { GlossaryCard() }
             item {
                 Text(
                     "※ 전통 명리학 이론에 따른 참고용 풀이입니다. 중요한 결정은 스스로의 판단으로 내려 주세요.",
@@ -105,15 +127,74 @@ fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Un
     }
 }
 
+// ── 공통 부품 ────────────────────────────────────────────────
+
 @Composable
 private fun InfoCard(title: String, content: @Composable () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             content()
         }
     }
 }
+
+/** 눌러서 펼치는 쉬운 설명 상자 */
+@Composable
+private fun ExplainBox(question: String, answer: String) {
+    var open by rememberSaveable(question) { mutableStateOf(false) }
+    Surface(
+        shape = RoundedCornerShape(10.dp),
+        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { open = !open },
+    ) {
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "💡 $question",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    if (open) "접기 ▲" else "보기 ▼",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+            if (open) {
+                Spacer(Modifier.height(6.dp))
+                Text(answer, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+    }
+}
+
+@Composable
+private fun LifeLine(emoji: String, title: String, body: String) {
+    Row {
+        Text(emoji, fontSize = 20.sp, modifier = Modifier.padding(end = 10.dp))
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+            Text(body, style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+@Composable
+private fun KeywordChip(text: String) {
+    Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f)) {
+        Text(
+            "#$text",
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+        )
+    }
+}
+
+// ── 생년월일 ─────────────────────────────────────────────────
 
 @Composable
 private fun BirthInfo(chart: SajuChart) {
@@ -125,35 +206,176 @@ private fun BirthInfo(chart: SajuChart) {
             style = MaterialTheme.typography.bodyMedium,
         )
         Text(
-            "$time · ${chart.input.gender.korean}성 · ${chart.year.branch.animal}띠",
+            "$time · ${chart.input.gender.korean}성 · ${Explain.animalEmoji(chart.year.branch)} ${chart.year.branch.animal}띠",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
 
+// ── 한눈에 보는 나 ───────────────────────────────────────────
+
 @Composable
-private fun PillarTable(chart: SajuChart) {
+private fun SummaryCard(chart: SajuChart) {
+    val name = chart.input.name.ifBlank { "나" }
+    val s = chart.dayMaster
+    val persona = Explain.persona(s)
+    val counts = chart.elementCounts
+    val maxCount = counts.values.max()
+    val minCount = counts.values.min()
+    val strongest = counts.filter { it.value == maxCount }.keys
+    val weakest = counts.filter { it.value == minCount }.keys
+    fun names(set: Set<Element>) = set.joinToString(" ") { "${Explain.element(it).emoji}${it.korean}" }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+    ) {
+        Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(
+                "✨ 한눈에 보는 나",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier
+                        .size(68.dp)
+                        .clip(CircleShape)
+                        .background(s.element.color()),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(Explain.stemEmoji(s), fontSize = 34.sp)
+                }
+                Spacer(Modifier.width(14.dp))
+                Column {
+                    Text("${name}님은", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    Text(
+                        "'${Explain.stemImage(s)}' 같은 사람",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                    Text(
+                        "타고난 기운: ${s.korean}${s.element.korean}(${s.hanja}${s.element.hanja})",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                persona.keywords.forEach { KeywordChip(it) }
+            }
+            Text(
+                "${Explain.animalEmoji(chart.year.branch)} ${chart.year.branch.animal}띠 — ${Explain.animalPersonality(chart.year.branch)}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("💪 가장 강한 기운: ${names(strongest)}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                Text(
+                    if (minCount == 0) "🌱 없어서 채우면 좋은 기운: ${names(weakest)}" else "🌱 상대적으로 약한 기운: ${names(weakest)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+                Text("⚖️ ${Explain.strengthFriendly(chart)}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+            }
+        }
+    }
+}
+
+// ── 사주팔자 ─────────────────────────────────────────────────
+
+@Composable
+private fun PillarSection(chart: SajuChart) {
+    // 선택한 글자: 기둥 번호 * 2 + (0=위 글자, 1=아래 글자). 처음에는 '나'(일간)를 보여 줍니다.
+    var selected by rememberSaveable { mutableIntStateOf(2) }
     val dm = chart.dayMaster
-    val columns = listOf("시주" to chart.hour, "일주" to chart.day, "월주" to chart.month, "년주" to chart.year)
-    InfoCard("사주팔자 (四柱八字)") {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            columns.forEach { (label, pillar) ->
+    val pillars = listOf(chart.hour, chart.day, chart.month, chart.year)
+
+    InfoCard("📜 사주팔자 — 타고난 여덟 글자") {
+        Text(
+            "태어난 해·달·날·시간을 네 개의 기둥으로 세우고, 기둥마다 하늘 글자(위)와 땅 글자(아래)를 하나씩 놓아 모두 8글자로 나타낸 거예요.",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        ExplainBox(
+            "이 표는 어떻게 읽나요?",
+            "• 오른쪽부터 년주(태어난 해) → 월주(달) → 일주(날) → 시주(시간) 순서예요.\n" +
+                "• 위 글자는 '천간'(하늘의 기운), 아래 글자는 '지지'(땅의 기운·띠 동물)라고 해요.\n" +
+                "• ⭐ 표시된 일주의 위 글자가 바로 '나'예요. 모든 풀이의 중심이에요.\n" +
+                "• 칸의 색은 오행이에요. 초록=나무, 빨강=불, 노랑=흙, 회색=쇠, 파랑=물.\n" +
+                "• 글자 위아래의 작은 글씨(비견, 정재 등)는 '나'와 그 글자의 관계(십신)예요.",
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            pillars.forEachIndexed { col, p ->
+                val role = Explain.pillarRole(col)
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(3.dp),
                 ) {
-                    Text(label, style = MaterialTheme.typography.labelLarge)
-                    if (pillar == null) {
-                        Text("모름", modifier = Modifier.padding(vertical = 40.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(role.name, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                    Text(
+                        role.short,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        softWrap = false,
+                    )
+                    if (p == null) {
+                        Text(
+                            "시간\n모름",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(vertical = 56.dp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     } else {
-                        val stemGod = if (pillar === chart.day) "일간(나)" else TenGod.of(dm, pillar.stem).korean
-                        Text(stemGod, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        GanjiBox(pillar.stem.hanja, pillar.stem.korean + pillar.stem.element.korean, pillar.stem.element)
-                        GanjiBox(pillar.branch.hanja, pillar.branch.korean + pillar.branch.element.korean, pillar.branch.element)
-                        Text(TenGod.of(dm, pillar.branch).korean, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            if (col == 1) "⭐ 나" else TenGod.of(dm, p.stem).korean,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        GanjiBox(
+                            emoji = Explain.stemEmoji(p.stem),
+                            hanja = p.stem.hanja,
+                            caption = p.stem.korean + p.stem.element.korean,
+                            element = p.stem.element,
+                            selected = selected == col * 2,
+                            onClick = { selected = col * 2 },
+                        )
+                        GanjiBox(
+                            emoji = Explain.animalEmoji(p.branch),
+                            hanja = p.branch.hanja,
+                            caption = p.branch.korean + p.branch.element.korean,
+                            element = p.branch.element,
+                            selected = selected == col * 2 + 1,
+                            onClick = { selected = col * 2 + 1 },
+                        )
+                        Text(
+                            TenGod.of(dm, p.branch).korean,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
+                }
+            }
+        }
+        Text(
+            "👆 글자를 누르면 뜻을 알려 드려요",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        val detail = Explain.charDetail(chart, selected / 2, selected % 2 == 0)
+        if (detail != null) {
+            Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceVariant) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(detail.title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    detail.lines.forEach { Text(it, style = MaterialTheme.typography.bodyMedium) }
                 }
             }
         }
@@ -161,82 +383,232 @@ private fun PillarTable(chart: SajuChart) {
 }
 
 @Composable
-private fun GanjiBox(hanja: String, caption: String, element: Element) {
+private fun GanjiBox(
+    emoji: String,
+    hanja: String,
+    caption: String,
+    element: Element,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    val shape = RoundedCornerShape(12.dp)
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(1f)
-            .clip(RoundedCornerShape(12.dp))
-            .background(element.color()),
+            .aspectRatio(0.82f)
+            .clip(shape)
+            .background(element.color())
+            .then(if (selected) Modifier.border(3.dp, MaterialTheme.colorScheme.onSurface, shape) else Modifier)
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(hanja, color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text(emoji, fontSize = 15.sp)
+            Text(hanja, color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.Bold)
             Text(caption, color = Color.White, fontSize = 11.sp)
         }
     }
 }
 
+// ── 오행 ─────────────────────────────────────────────────────
+
 @Composable
-private fun ElementChart(chart: SajuChart) {
+private fun OhaengSection(chart: SajuChart) {
     val counts = chart.elementCounts
     val total = counts.values.sum().coerceAtLeast(1)
-    val max = counts.values.maxOrNull() ?: 0
-    InfoCard("오행 분포") {
+    val max = counts.values.max()
+    InfoCard("🌈 오행 — 나를 이루는 다섯 가지 기운") {
+        Text(
+            "동양에서는 세상이 나무·불·흙·쇠·물, 다섯 가지 기운으로 이루어져 있다고 봐요. " +
+                "내 사주 ${total}글자에 어떤 기운이 몇 개 있는지 보면 타고난 성향과 균형을 알 수 있어요.",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            OhaengDiagram(counts)
+        }
+        Text(
+            "━ 금색 원과 화살표: 서로 살려 주는 관계(상생)\n    🌳나무 → 🔥불 → ⛰️흙 → 💎쇠 → 💧물 → 🌳나무\n" +
+                "┅ 안쪽 점선 별: 서로 누르는 관계(상극)\n" +
+                "● 원이 클수록 그 기운이 많고, 흐린 원은 없는 기운이에요.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         Element.entries.forEach { e ->
             val n = counts.getValue(e)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    "${e.hanja} ${e.korean}",
-                    modifier = Modifier
-                        .widthIn(min = 52.dp)
-                        .padding(end = 8.dp),
-                    maxLines = 1,
-                    softWrap = false,
-                )
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(18.dp)
-                        .clip(RoundedCornerShape(9.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                ) {
-                    if (n > 0) {
-                        Box(
-                            Modifier
-                                .fillMaxHeight()
-                                .fillMaxWidth(n.toFloat() / total)
-                                .background(e.color()),
-                        )
+            val info = Explain.element(e)
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "${info.emoji} ${e.korean}(${e.hanja})",
+                        modifier = Modifier
+                            .widthIn(min = 76.dp)
+                            .padding(end = 6.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        softWrap = false,
+                    )
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(14.dp)
+                            .clip(RoundedCornerShape(7.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                    ) {
+                        if (n > 0) {
+                            Box(
+                                Modifier
+                                    .fillMaxHeight()
+                                    .fillMaxWidth(n.toFloat() / total)
+                                    .background(e.color()),
+                            )
+                        }
                     }
+                    Text(
+                        "${n}개 · ${Explain.elementStatus(n)}",
+                        modifier = Modifier
+                            .widthIn(min = 86.dp)
+                            .padding(start = 8.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (n == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.End,
+                        maxLines = 1,
+                        softWrap = false,
+                    )
                 }
-                Text("${n}개", modifier = Modifier.width(40.dp), textAlign = TextAlign.End)
+                Text(
+                    "${info.thing} · ${info.keywords}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
-        Spacer(Modifier.height(4.dp))
         Text(Interpretation.overallSummary(chart), style = MaterialTheme.typography.bodyMedium)
         counts.filter { it.value == 0 }.keys.forEach {
-            Text("• " + Interpretation.elementAdvice(it), style = MaterialTheme.typography.bodyMedium)
+            Text("🌱 " + Interpretation.elementAdvice(it), style = MaterialTheme.typography.bodyMedium)
         }
         counts.filter { it.value >= 3 && it.value == max }.keys.forEach {
-            Text("• " + Interpretation.elementExcess(it), style = MaterialTheme.typography.bodyMedium)
+            Text("🔆 " + Interpretation.elementExcess(it), style = MaterialTheme.typography.bodyMedium)
+        }
+        ExplainBox(
+            "다섯 기운은 각각 무슨 뜻인가요?",
+            Element.entries.joinToString("\n") { e ->
+                val i = Explain.element(e)
+                "${i.emoji} ${e.korean}(${e.hanja}) — ${i.meaning}"
+            },
+        )
+        ExplainBox(
+            "오행 균형이 왜 중요한가요?",
+            "어느 한쪽으로 치우치지 않고 다섯 기운이 고르게 있을수록 안정적이라고 봐요. " +
+                "없는 기운은 그 기운의 색깔·방향·생활 습관으로 채우고, 너무 많은 기운은 조금 덜어 내면 좋아요. " +
+                "개수는 사주 8글자(시간을 모르면 6글자)에 드러난 오행을 센 것이에요.",
+        )
+    }
+}
+
+/** 오행 상생·상극 관계도 */
+@Composable
+private fun OhaengDiagram(counts: Map<Element, Int>) {
+    val gold = Color(0xFFE8B66F)
+    val clash = Color(0x88E57373)
+    val sizeDp = 280f
+    val ringDp = sizeDp * 0.36f
+    Box(Modifier.size(sizeDp.dp)) {
+        Canvas(Modifier.fillMaxSize()) {
+            val c = center
+            val r = size.minDimension * 0.36f
+            fun pt(deg: Double) = Offset(
+                c.x + r * cos(Math.toRadians(deg)).toFloat(),
+                c.y + r * sin(Math.toRadians(deg)).toFloat(),
+            )
+            val pts = (0 until 5).map { pt(-90.0 + 72 * it) }
+            // 상극: 별 모양 점선
+            for (i in 0 until 5) {
+                drawLine(
+                    color = clash,
+                    start = pts[i],
+                    end = pts[(i + 2) % 5],
+                    strokeWidth = 1.5.dp.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 10f)),
+                )
+            }
+            // 상생: 금색 원 + 시계 방향 화살표
+            drawCircle(color = gold, radius = r, center = c, style = Stroke(width = 2.dp.toPx()))
+            for (i in 0 until 5) {
+                val deg = -90.0 + 72 * i + 36
+                val p = pt(deg)
+                val rad = Math.toRadians(deg)
+                val tx = -sin(rad).toFloat()
+                val ty = cos(rad).toFloat()
+                val nx = cos(rad).toFloat()
+                val ny = sin(rad).toFloat()
+                val len = 10.dp.toPx()
+                val wid = 8.dp.toPx()
+                val path = Path().apply {
+                    moveTo(p.x + tx * len / 2, p.y + ty * len / 2)
+                    lineTo(p.x - tx * len / 2 + nx * wid / 2, p.y - ty * len / 2 + ny * wid / 2)
+                    lineTo(p.x - tx * len / 2 - nx * wid / 2, p.y - ty * len / 2 - ny * wid / 2)
+                    close()
+                }
+                drawPath(path, gold)
+            }
+        }
+        Element.entries.forEachIndexed { i, e ->
+            val n = counts.getValue(e)
+            val d = 46f + 8f * n.coerceAtMost(4)
+            val rad = Math.toRadians(-90.0 + 72 * i)
+            val cx = sizeDp / 2 + ringDp * cos(rad).toFloat()
+            val cy = sizeDp / 2 + ringDp * sin(rad).toFloat()
+            Box(
+                modifier = Modifier
+                    .offset(x = (cx - d / 2).dp, y = (cy - d / 2).dp)
+                    .size(d.dp)
+                    .clip(CircleShape)
+                    .background(e.color().copy(alpha = if (n == 0) 0.35f else 1f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(Explain.element(e).emoji, fontSize = 15.sp)
+                    Text(
+                        "${e.korean} $n",
+                        color = Color.White,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        softWrap = false,
+                    )
+                }
+            }
         }
     }
 }
 
+// ── 성격과 삶 ────────────────────────────────────────────────
+
 @Composable
-private fun DayMasterCard(chart: SajuChart) {
-    val r = Interpretation.dayMaster(chart.dayMaster)
-    InfoCard("나의 본성 · ${r.title}") {
+private fun PersonaCard(chart: SajuChart) {
+    val s = chart.dayMaster
+    val r = Interpretation.dayMaster(s)
+    val p = Explain.persona(s)
+    InfoCard("🧭 나의 성격과 삶") {
+        Text(
+            "${Explain.stemEmoji(s)} ${r.title}",
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+        )
         Text(r.nature, style = MaterialTheme.typography.bodyMedium)
-        Text("강점: ${r.strengths}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-        Text("주의할 점: ${r.cautions}", style = MaterialTheme.typography.bodyMedium)
-        Spacer(Modifier.height(4.dp))
+        LifeLine("👍", "강점", r.strengths)
+        LifeLine("⚠️", "주의할 점", r.cautions)
+        LifeLine("💕", "연애·결혼", p.love)
+        LifeLine("💼", "잘 맞는 일", p.career)
+        LifeLine("💰", "재물 습관", p.money)
+        LifeLine("🍀", "건강 관리", p.health)
         val percent = (chart.strengthRatio * 100).toInt()
-        Text("신강·신약 (간이 판정, 일간을 돕는 기운 ${percent}%)", fontWeight = FontWeight.SemiBold)
-        Text(Interpretation.strength(chart), style = MaterialTheme.typography.bodyMedium)
+        LifeLine("⚖️", "${Explain.strengthFriendly(chart)} · 나를 돕는 기운 ${percent}%", Interpretation.strength(chart))
     }
 }
+
+// ── 대운 ─────────────────────────────────────────────────────
 
 @Composable
 private fun DaeunCard(chart: SajuChart) {
@@ -244,15 +616,20 @@ private fun DaeunCard(chart: SajuChart) {
     val current = chart.daeunAt(age)
     val currentIndex = chart.daeun.indexOf(current).coerceAtLeast(0)
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = (currentIndex - 1).coerceAtLeast(0))
-    InfoCard("대운 (10년 운의 흐름)") {
+    InfoCard("🗓️ 대운 — 10년마다 바뀌는 인생의 계절") {
         Text(
-            "대운수 ${chart.daeunStartAge} · ${if (chart.isDaeunForward) "순행" else "역행"} (나이는 세는나이 기준)",
+            "대운은 10년 단위로 바뀌는 큰 운의 흐름이에요. 지금 내가 어떤 계절을 지나고 있는지, 다음엔 어떤 계절이 오는지 보여 드려요.",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Text(
+            "${chart.daeunStartAge}세부터 10년마다 바뀌어요 · ${if (chart.isDaeunForward) "순행" else "역행"} · 나이는 세는나이 기준 · 옆으로 밀어 보세요 👉",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         LazyRow(state = listState, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             items(chart.daeun) { period ->
                 val isNow = period == current
+                val god = TenGod.of(chart.dayMaster, period.pillar.stem)
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = if (isNow) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.surface,
@@ -261,33 +638,48 @@ private fun DaeunCard(chart: SajuChart) {
                     Column(
                         Modifier
                             .padding(10.dp)
-                            .width(52.dp),
+                            .width(62.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text("${period.startAge}세", style = MaterialTheme.typography.labelMedium)
-                        PillarText(period.pillar)
-                        Text(TenGod.of(chart.dayMaster, period.pillar.stem).korean, style = MaterialTheme.typography.labelSmall)
+                        Text(if (isNow) "지금" else "${period.startAge}세", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                        if (isNow) Text("${period.startAge}세~", style = MaterialTheme.typography.labelSmall)
+                        PillarText(period.pillar, isNow)
+                        Text(god.korean, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        Text(Explain.tenGodShort(god), style = MaterialTheme.typography.labelSmall, maxLines = 1, softWrap = false)
                     }
                 }
             }
         }
         if (current != null) {
             val god = TenGod.of(chart.dayMaster, current.pillar.stem)
-            Text(
-                "지금은 ${current.pillar.korean}(${current.pillar.hanja}) 대운(${current.startAge}~${current.startAge + 9}세)입니다. " +
-                    "${god.korean}의 기운 — ${Interpretation.tenGodMeaning(god)}",
-                style = MaterialTheme.typography.bodyMedium,
+            LifeLine(
+                "📍",
+                "지금은 ${current.pillar.korean}(${current.pillar.hanja}) 대운 · ${current.startAge}~${current.startAge + 9}세",
+                Explain.daeunMeaning(god),
             )
+            val next = chart.daeun.getOrNull(currentIndex + 1)
+            if (next != null) {
+                val nextGod = TenGod.of(chart.dayMaster, next.pillar.stem)
+                LifeLine(
+                    "⏭️",
+                    "다음 대운 · ${next.startAge}세부터 ${next.pillar.korean}(${next.pillar.hanja})",
+                    Explain.daeunMeaning(nextGod),
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun PillarText(p: Pillar) {
-    Text(p.stem.hanja, color = p.stem.element.color(), fontSize = 20.sp, fontWeight = FontWeight.Bold)
-    Text(p.branch.hanja, color = p.branch.element.color(), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+private fun PillarText(p: Pillar, onHighlight: Boolean) {
+    val dark = Color(0xFF2E1146)
+    Text(Explain.stemEmoji(p.stem), fontSize = 13.sp)
+    Text(p.stem.hanja, color = if (onHighlight) dark else p.stem.element.color(), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+    Text(p.branch.hanja, color = if (onHighlight) dark else p.branch.element.color(), fontSize = 20.sp, fontWeight = FontWeight.Bold)
     Text(p.korean, style = MaterialTheme.typography.labelSmall)
 }
+
+// ── 올해 운세 ────────────────────────────────────────────────
 
 @Composable
 private fun YearFortuneCard(chart: SajuChart) {
@@ -295,14 +687,31 @@ private fun YearFortuneCard(chart: SajuChart) {
     val pillar = SajuCalculator.yearPillarOf(year)
     val stemGod = TenGod.of(chart.dayMaster, pillar.stem)
     val branchGod = TenGod.of(chart.dayMaster, pillar.branch)
-    InfoCard("${year}년 ${pillar.korean}(${pillar.hanja})년 운세") {
-        Text(Interpretation.yearlyFortune(stemGod), style = MaterialTheme.typography.bodyMedium)
+    InfoCard("🎊 ${year}년 ${pillar.korean}(${pillar.hanja})년 운세") {
         Text(
-            "올해 천간은 ${stemGod.korean}, 지지는 ${branchGod.korean}의 기운입니다.\n" +
-                "· ${stemGod.korean}: ${Interpretation.tenGodMeaning(stemGod)}\n" +
-                "· ${branchGod.korean}: ${Interpretation.tenGodMeaning(branchGod)}",
-            style = MaterialTheme.typography.bodySmall,
+            "올해는 ${Explain.stemEmoji(pillar.stem)} ${Explain.josa(pillar.stem.korean + pillar.stem.element.korean, "과", "와")} " +
+                "${Explain.animalEmoji(pillar.branch)} ${pillar.branch.animal}의 해예요.",
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        Text(Interpretation.yearlyFortune(stemGod), style = MaterialTheme.typography.bodyMedium)
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            KeywordChip(Explain.tenGodShort(stemGod).replace("·", " "))
+            if (branchGod != stemGod) KeywordChip(Explain.tenGodShort(branchGod).replace("·", " "))
+        }
+        ExplainBox(
+            "올해 기운 자세히 보기",
+            "• 상반기 느낌(하늘 글자 ${pillar.stem.hanja}): ${stemGod.korean} — ${Explain.tenGodExplain(stemGod)}\n" +
+                "• 하반기 느낌(땅 글자 ${pillar.branch.hanja}): ${branchGod.korean} — ${Explain.tenGodExplain(branchGod)}",
+        )
+    }
+}
+
+// ── 용어 사전 ────────────────────────────────────────────────
+
+@Composable
+private fun GlossaryCard() {
+    InfoCard("📖 사주 용어, 쉽게 알기") {
+        Explain.glossary.forEach { (term, meaning) -> ExplainBox(term, meaning) }
     }
 }
