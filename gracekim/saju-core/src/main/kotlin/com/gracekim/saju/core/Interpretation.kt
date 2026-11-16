@@ -131,7 +131,7 @@ object Interpretation {
             append("${dm.element.korean}(${dm.element.hanja})의 사람입니다. ")
             append(
                 if (most.size == 1) "사주에서 가장 많은 오행은 ${mostText}이고"
-                else "사주에서 가장 많은 오행은 ${mostText}로 같은 개수이고"
+                else "사주에서 가장 많은 오행은 ${mostText} (${most.size}가지가 같은 개수)이고"
             )
             if (missing.isEmpty()) append(", 다섯 가지 오행이 모두 갖춰져 있습니다.")
             else append(", ${missing.joinToString("·") { "${it.korean}(${it.hanja})" }} 기운은 보이지 않습니다.")
