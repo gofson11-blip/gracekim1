@@ -14,8 +14,16 @@ android {
         applicationId = "com.gracekim.saju"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.2.0"
+
+        // ── AdMob 광고 ID ─────────────────────────────────────────────
+        // 지금은 Google 공식 "테스트" ID 입니다. AdMob 계정을 만든 뒤
+        // 발급받은 실제 ID 로 아래 3줄만 바꾸면 됩니다.
+        // (실제 ID 로 바꾼 뒤에는 본인이 광고를 반복해서 누르면 계정이 정지될 수 있으니 주의!)
+        manifestPlaceholders["admobAppId"] = "ca-app-pub-3940256099942544~3347511713"
+        buildConfigField("String", "ADMOB_BANNER_ID", "\"ca-app-pub-3940256099942544/9214589741\"")
+        buildConfigField("String", "ADMOB_REWARDED_ID", "\"ca-app-pub-3940256099942544/5224354917\"")
     }
 
     signingConfigs {
@@ -44,6 +52,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -63,5 +72,6 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.core:core-ktx:1.15.0")
+    implementation("com.google.android.gms:play-services-ads:24.2.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

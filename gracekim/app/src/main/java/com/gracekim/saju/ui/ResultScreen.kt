@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.gracekim.saju.ads.BannerAd
 import com.gracekim.saju.core.Element
 import com.gracekim.saju.core.Interpretation
 import com.gracekim.saju.core.Pillar
@@ -64,6 +65,7 @@ fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Un
                 ),
             )
         },
+        bottomBar = { BannerAd() },
     ) { padding ->
         LazyColumn(
             modifier = Modifier

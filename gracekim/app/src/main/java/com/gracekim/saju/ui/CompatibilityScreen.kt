@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,6 +20,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +31,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.gracekim.saju.ads.BannerAd
+import com.gracekim.saju.ads.rememberRewardedAd
 import com.gracekim.saju.core.CompatibilityResult
 import com.gracekim.saju.core.SajuChart
 
@@ -34,6 +41,8 @@ import com.gracekim.saju.core.SajuChart
 fun CompatibilityScreen(me: SajuChart, partner: SajuChart, result: CompatibilityResult, onBack: () -> Unit) {
     val myName = me.input.name.ifBlank { "나" }
     val partnerName = partner.input.name.ifBlank { "상대방" }
+    var unlocked by rememberSaveable(result) { mutableStateOf(false) }
+    val rewardedAd = rememberRewardedAd()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -49,6 +58,7 @@ fun CompatibilityScreen(me: SajuChart, partner: SajuChart, result: Compatibility
                 ),
             )
         },
+        bottomBar = { BannerAd() },
     ) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -82,7 +92,30 @@ fun CompatibilityScreen(me: SajuChart, partner: SajuChart, result: Compatibility
                     }
                 }
             }
-            items(result.points) { point ->
+            if (!unlocked) {
+                item {
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            Text("🔒 상세 궁합 풀이 ${result.points.size}가지", fontWeight = FontWeight.Bold)
+                            Text(
+                                "두 사람의 본성, 배우자 자리, 띠, 오행 보완까지\n자세한 풀이를 확인해 보세요.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Center,
+                            )
+                            Button(onClick = { rewardedAd.show { unlocked = true } }) {
+                                Text("▶ 광고 보고 상세 풀이 열기")
+                            }
+                        }
+                    }
+                }
+            }
+            if (unlocked) items(result.points) { point ->
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(

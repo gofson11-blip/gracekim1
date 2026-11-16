@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import com.gracekim.saju.ads.Ads
 import com.gracekim.saju.core.Compatibility
 import com.gracekim.saju.core.SajuCalculator
 import com.gracekim.saju.ui.CompatibilityScreen
@@ -23,6 +24,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        Ads.initialize(this)
         setContent {
             SajuTheme {
                 SajuApp()
