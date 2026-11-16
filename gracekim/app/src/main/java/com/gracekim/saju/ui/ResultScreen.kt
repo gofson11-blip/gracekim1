@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -184,7 +186,14 @@ private fun ElementChart(chart: SajuChart) {
         Element.entries.forEach { e ->
             val n = counts.getValue(e)
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("${e.korean}(${e.hanja})", modifier = Modifier.width(56.dp))
+                Text(
+                    "${e.hanja} ${e.korean}",
+                    modifier = Modifier
+                        .widthIn(min = 52.dp)
+                        .padding(end = 8.dp),
+                    maxLines = 1,
+                    softWrap = false,
+                )
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -233,13 +242,15 @@ private fun DayMasterCard(chart: SajuChart) {
 private fun DaeunCard(chart: SajuChart) {
     val age = LocalDate.now().year - chart.solarDate.year + 1 // 세는나이
     val current = chart.daeunAt(age)
+    val currentIndex = chart.daeun.indexOf(current).coerceAtLeast(0)
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = (currentIndex - 1).coerceAtLeast(0))
     InfoCard("대운 (10년 운의 흐름)") {
         Text(
             "대운수 ${chart.daeunStartAge} · ${if (chart.isDaeunForward) "순행" else "역행"} (나이는 세는나이 기준)",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        LazyRow(state = listState, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             items(chart.daeun) { period ->
                 val isNow = period == current
                 Card(

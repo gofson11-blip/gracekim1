@@ -120,14 +120,19 @@ object Interpretation {
 
     fun overallSummary(chart: SajuChart): String {
         val counts = chart.elementCounts
-        val max = counts.maxByOrNull { it.value }!!
+        val maxCount = counts.values.max()
+        val most = counts.filter { it.value == maxCount }.keys
+        val mostText = most.joinToString("·") { "${it.korean}(${it.hanja})" }
         val missing = counts.filter { it.value == 0 }.keys
         val dm = chart.dayMaster
         return buildString {
             append("일간은 ${dm.korean}${dm.element.korean}(${dm.hanja}${dm.element.hanja})으로, ")
             append(if (dm.isYang) "양(陽)의 기운을 지닌 " else "음(陰)의 기운을 지닌 ")
             append("${dm.element.korean}(${dm.element.hanja})의 사람입니다. ")
-            append("사주에서 가장 많은 오행은 ${max.key.korean}(${max.key.hanja})이고")
+            append(
+                if (most.size == 1) "사주에서 가장 많은 오행은 ${mostText}이고"
+                else "사주에서 가장 많은 오행은 ${mostText}로 같은 개수이고"
+            )
             if (missing.isEmpty()) append(", 다섯 가지 오행이 모두 갖춰져 있습니다.")
             else append(", ${missing.joinToString("·") { "${it.korean}(${it.hanja})" }} 기운은 보이지 않습니다.")
         }
