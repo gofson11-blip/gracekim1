@@ -43,5 +43,5 @@ jobs:
           gh release delete latest --yes --cleanup-tag || true
           gh release create latest saju-app.apk \
             --target "${{ github.sha }}" \
-            --title "오늘의 사주 최신 버전" \
+            --title "사주사랑 최신 버전" \
             --notes "휴대폰에서 saju-app.apk 를 눌러 내려받은 뒤 설치하세요. (브랜치: ${{ github.ref_name }})"

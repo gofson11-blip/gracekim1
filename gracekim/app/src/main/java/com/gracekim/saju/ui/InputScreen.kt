@@ -100,7 +100,7 @@ fun InputScreen(
     form: FormData,
     onFormChange: (FormData) -> Unit,
     onSubmit: (FormData) -> Unit,
-    title: String = "오늘의 사주",
+    title: String = "사주사랑",
     intro: String = "태어난 날과 시간을 입력하면\n사주팔자와 오행, 대운, 오늘의 운세를 풀어 드립니다.",
     submitLabel: String = "사주 보기",
     onBack: (() -> Unit)? = null,
