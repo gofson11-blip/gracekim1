@@ -76,6 +76,7 @@ import kotlin.math.sin
 @Composable
 fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Unit) {
     val name = chart.input.name.ifBlank { "나" }
+    var tab by rememberSaveable { mutableIntStateOf(0) }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -101,28 +102,41 @@ fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Un
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             item { BirthInfo(chart) }
-            item { SummaryCard(chart) }
-            item { DailyFortuneCard(chart) }
-            item { BokCard(chart) }
             item {
-                Button(
-                    onClick = onCompatibility,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                ) {
-                    Text("💞 궁합 보기", style = MaterialTheme.typography.titleMedium)
-                }
+                ResultTabs(selected = tab, onSelect = { tab = it })
             }
-            item { YearReportCard(chart) }
-            item { PillarSection(chart) }
-            item { OhaengSection(chart) }
-            item { PersonaCard(chart) }
-            item { AbilityCard(chart) }
-            item { PalaceCard(chart) }
-            item { DaeunCard(chart) }
-            item { SettingsCard() }
-            item { GlossaryCard() }
+            if (tab == 0) {
+                item { SummaryCard(chart) }
+                item { DailyFortuneCard(chart) }
+                item { BokCard(chart) }
+                item {
+                    Button(
+                        onClick = onCompatibility,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                    ) {
+                        Text("💞 궁합 보기", style = MaterialTheme.typography.titleMedium)
+                    }
+                }
+                item { YearReportCard(chart) }
+                item { TarotSection(chart) }
+                item { ZodiacSection(chart) }
+                item { SettingsCard() }
+                item {
+                    TextButton(onClick = { tab = 1 }, modifier = Modifier.fillMaxWidth()) {
+                        Text("📜 타고난 내 사주 풀이 보러 가기 →")
+                    }
+                }
+            } else {
+                item { PillarSection(chart) }
+                item { OhaengSection(chart) }
+                item { PersonaCard(chart) }
+                item { AbilityCard(chart) }
+                item { PalaceCard(chart) }
+                item { DaeunCard(chart) }
+                item { GlossaryCard() }
+            }
             item {
                 Text(
                     "※ 전통 명리학 이론에 따른 참고용 풀이입니다. 중요한 결정은 스스로의 판단으로 내려 주세요.",
@@ -136,6 +150,38 @@ fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Un
 }
 
 // ── 공통 부품 ────────────────────────────────────────────────
+
+/** 🔮 운세 / 📜 내 사주 탭 */
+@Composable
+private fun ResultTabs(selected: Int, onSelect: (Int) -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant),
+    ) {
+        listOf("🔮 운세", "📜 내 사주").forEachIndexed { i, label ->
+            val on = i == selected
+            Box(
+                Modifier
+                    .weight(1f)
+                    .padding(4.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(if (on) MaterialTheme.colorScheme.primary else Color.Transparent)
+                    .clickable { onSelect(i) }
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    label,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = if (on) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
 
 @Composable
 private fun InfoCard(title: String, content: @Composable () -> Unit) {
