@@ -56,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gracekim.saju.ads.BannerAd
+import com.gracekim.saju.core.Detail
 import com.gracekim.saju.core.Element
 import com.gracekim.saju.core.Explain
 import com.gracekim.saju.core.Interpretation
@@ -112,8 +113,11 @@ fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Un
             item { PillarSection(chart) }
             item { OhaengSection(chart) }
             item { PersonaCard(chart) }
+            item { AbilityCard(chart) }
+            item { PalaceCard(chart) }
             item { DaeunCard(chart) }
             item { YearFortuneCard(chart) }
+            item { MonthlyCard(chart) }
             item { GlossaryCard() }
             item {
                 Text(
@@ -597,14 +601,126 @@ private fun PersonaCard(chart: SajuChart) {
             fontWeight = FontWeight.Bold,
         )
         Text(r.nature, style = MaterialTheme.typography.bodyMedium)
+        val deep = Detail.deepPersona(s)
+        deep.paragraphs.forEach { Text(it, style = MaterialTheme.typography.bodyMedium) }
         LifeLine("👍", "강점", r.strengths)
         LifeLine("⚠️", "주의할 점", r.cautions)
+        LifeLine("🤝", "대인관계", deep.relationship)
         LifeLine("💕", "연애·결혼", p.love)
         LifeLine("💼", "잘 맞는 일", p.career)
         LifeLine("💰", "재물 습관", p.money)
         LifeLine("🍀", "건강 관리", p.health)
         val percent = (chart.strengthRatio * 100).toInt()
         LifeLine("⚖️", "${Explain.strengthFriendly(chart)} · 나를 돕는 기운 ${percent}%", Interpretation.strength(chart))
+        val lucky = Detail.lucky(chart)
+        Surface(shape = RoundedCornerShape(12.dp), color = lucky.element.color().copy(alpha = 0.18f)) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(14.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    "🍀 나에게 힘이 되는 것 (개운법)",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(lucky.reason, style = MaterialTheme.typography.bodyMedium)
+                Text("🎨 행운의 색: ${lucky.color}", style = MaterialTheme.typography.bodyMedium)
+                Text("🔢 행운의 숫자: ${lucky.numbers}", style = MaterialTheme.typography.bodyMedium)
+                Text("🧭 좋은 방향: ${lucky.direction}", style = MaterialTheme.typography.bodyMedium)
+                Text("✨ 도움이 되는 것: ${lucky.items}", style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+    }
+}
+
+// ── 다섯 가지 능력 (십신 분포) ────────────────────────────────
+
+@Composable
+private fun AbilityCard(chart: SajuChart) {
+    val counts = Detail.tenGroupCounts(chart)
+    val total = counts.values.sum().coerceAtLeast(1)
+    InfoCard("📊 나의 다섯 가지 능력") {
+        Text(
+            "'나'(일간)를 뺀 나머지 ${total}글자가 나에게 어떤 역할을 하는지 다섯 가지로 나눠 봤어요. 많은 쪽이 타고난 강점, 없는 쪽은 채우면 좋은 부분이에요.",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Detail.TenGroup.entries.forEach { g ->
+            val n = counts.getValue(g)
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "${g.emoji} ${g.ability}",
+                        modifier = Modifier
+                            .widthIn(min = 120.dp)
+                            .padding(end = 6.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        softWrap = false,
+                    )
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(12.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                    ) {
+                        if (n > 0) {
+                            Box(
+                                Modifier
+                                    .fillMaxHeight()
+                                    .fillMaxWidth(n.toFloat() / total)
+                                    .background(MaterialTheme.colorScheme.primary),
+                            )
+                        }
+                    }
+                    Text(
+                        "${n}개 · ${g.status(n)}",
+                        modifier = Modifier
+                            .widthIn(min = 72.dp)
+                            .padding(start = 8.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (n == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.End,
+                        maxLines = 1,
+                        softWrap = false,
+                    )
+                }
+                Text(g.describe(n), style = MaterialTheme.typography.bodySmall)
+            }
+        }
+        ExplainBox(
+            "다섯 가지 능력은 어떻게 나눈 건가요?",
+            Detail.TenGroup.entries.joinToString("\n") { "${it.emoji} ${it.title} — ${it.meaning}" } +
+                "\n\n사주 용어로는 '십신'이라고 해요. 비견·겁재, 식신·상관처럼 두 개씩 짝지어 다섯 묶음으로 봐요.",
+        )
+    }
+}
+
+// ── 배우자 자리 · 사회생활 자리 ───────────────────────────────
+
+@Composable
+private fun PalaceCard(chart: SajuChart) {
+    val dm = chart.dayMaster
+    val spouseGod = TenGod.of(dm, chart.day.branch)
+    val socialGod = TenGod.of(dm, chart.month.branch)
+    InfoCard("💑 결혼·가정과 사회생활") {
+        Text(
+            "사주에서 태어난 날의 아래 글자는 '배우자 자리', 태어난 달의 아래 글자는 '사회생활 자리'로 봐요.",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        LifeLine(
+            "🏠",
+            "배우자 자리: ${chart.day.branch.hanja} ${chart.day.branch.korean} · ${spouseGod.korean}(${Explain.tenGodShort(spouseGod)})",
+            Detail.spousePalace(spouseGod),
+        )
+        LifeLine(
+            "🏢",
+            "사회생활 자리: ${chart.month.branch.hanja} ${chart.month.branch.korean} · ${socialGod.korean}(${Explain.tenGodShort(socialGod)})",
+            Detail.socialPalace(socialGod),
+        )
     }
 }
 
@@ -657,6 +773,12 @@ private fun DaeunCard(chart: SajuChart) {
                 "지금은 ${current.pillar.korean}(${current.pillar.hanja}) 대운 · ${current.startAge}~${current.startAge + 9}세",
                 Explain.daeunMeaning(god),
             )
+            val areas = Detail.daeunAreas(god)
+            Column(Modifier.padding(start = 30.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text("💼 일: ${areas.work}", style = MaterialTheme.typography.bodyMedium)
+                Text("💰 재물: ${areas.money}", style = MaterialTheme.typography.bodyMedium)
+                Text("💕 인연: ${areas.love}", style = MaterialTheme.typography.bodyMedium)
+            }
             val next = chart.daeun.getOrNull(currentIndex + 1)
             if (next != null) {
                 val nextGod = TenGod.of(chart.dayMaster, next.pillar.stem)
@@ -695,6 +817,11 @@ private fun YearFortuneCard(chart: SajuChart) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(Interpretation.yearlyFortune(stemGod), style = MaterialTheme.typography.bodyMedium)
+        val areas = Detail.yearAreas(stemGod)
+        LifeLine("💰", "재물운", areas.money)
+        LifeLine("💼", "일·학업운", areas.work)
+        LifeLine("💕", "애정운", areas.love)
+        LifeLine("🍀", "건강운", areas.health)
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             KeywordChip(Explain.tenGodShort(stemGod).replace("·", " "))
             if (branchGod != stemGod) KeywordChip(Explain.tenGodShort(branchGod).replace("·", " "))
@@ -704,6 +831,53 @@ private fun YearFortuneCard(chart: SajuChart) {
             "• 상반기 느낌(하늘 글자 ${pillar.stem.hanja}): ${stemGod.korean} — ${Explain.tenGodExplain(stemGod)}\n" +
                 "• 하반기 느낌(땅 글자 ${pillar.branch.hanja}): ${branchGod.korean} — ${Explain.tenGodExplain(branchGod)}",
         )
+    }
+}
+
+@Composable
+private fun MonthlyCard(chart: SajuChart) {
+    val today = LocalDate.now()
+    val sajuYear = Detail.sajuYearOf(today)
+    val months = Detail.monthlyFortunes(chart, sajuYear)
+    InfoCard("📅 월별 운세 (${sajuYear}년 2월 ~ ${sajuYear + 1}년 1월)") {
+        Text(
+            "사주에서 한 해는 입춘(2월 4일경)에 시작하고, 매달은 절기(4~8일경)에 바뀌어요.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        months.forEach { m ->
+            val isNow = m.calendarYear == today.year && m.calendarMonth == today.monthValue
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                color = if (isNow) MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f) else Color.Transparent,
+            ) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    Column(Modifier.widthIn(min = 64.dp)) {
+                        Text(
+                            (if (isNow) "▶ " else "") + "${m.calendarMonth}월",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            "${m.pillar.korean} · ${m.god.korean}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Column(Modifier.weight(1f)) {
+                        Text(m.text, style = MaterialTheme.typography.bodyMedium)
+                        m.relation?.let {
+                            Text("· $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

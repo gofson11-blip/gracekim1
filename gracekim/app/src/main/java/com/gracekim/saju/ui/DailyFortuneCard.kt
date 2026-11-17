@@ -74,6 +74,9 @@ fun DailyFortuneCard(chart: SajuChart) {
             Text("💰 재물  ${f.money}", style = MaterialTheme.typography.bodyMedium)
             Text("💗 애정  ${f.love}", style = MaterialTheme.typography.bodyMedium)
             Text("🍀 건강  ${f.health}", style = MaterialTheme.typography.bodyMedium)
+            val todo = com.gracekim.saju.core.Detail.dailyTodo(f.tenGod)
+            Text("✅ 하면 좋은 일  ${todo.first}", style = MaterialTheme.typography.bodyMedium)
+            Text("⛔ 피하면 좋은 일  ${todo.second}", style = MaterialTheme.typography.bodyMedium)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Box(
                     Modifier
