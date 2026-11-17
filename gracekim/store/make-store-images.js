@@ -72,7 +72,7 @@ const page = (h1, sub, screenInner) => `<!doctype html><html><head><meta charset
 <div class="phone"><div class="screen"><div class="ui">
 <div class="sb"><span>9:41</span><span>▴ ◆ ▮</span></div>${screenInner}</div></div></div></body></html>`;
 
-const resultBar = `<div class="bar"><small>〈 다시</small>김하늘의 사주</div>`;
+const resultBar = `<div class="bar"><small>👥 목록</small>김하늘의 사주</div>`;
 const birth = `<div class="t" style="margin-bottom:10px">양력 1995년 3월 15일 · 음력 1995년 2월 15일<br><span class="m">14:30 · 여성 · 돼지띠</span></div>`;
 
 // 실제 앱 계산 결과 (김하늘, 여, 1995-03-15 14:30 양력)
@@ -140,12 +140,35 @@ const inputScreen = `<div class="bar">사주사랑</div><div class="wrap">
 <span class="check"><i>✓</i>서울 기준 시간 보정 (-32분)</span></div>
 <div class="btn" style="margin-top:4px">사주 보기</div></div>`;
 
+const yearScreen = resultBar + `<div class="wrap">
+<div class="card" style="background:#4F378B">
+ <div style="display:flex;align-items:center;margin-bottom:10px"><h3 style="flex:1;margin:0">🎊 신년운세</h3><span class="chip">2026년</span>&nbsp;<span class="chip on">2027년</span></div>
+ <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">
+  <div style="width:70px;height:70px;border-radius:50%;background:${EL.F};display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none">
+   <div style="font-size:22px;line-height:1.1">🐑</div><div style="font-size:13px;font-weight:900">90점</div></div>
+  <div><div style="font-size:14.5px;font-weight:900;line-height:1.35">2027년 정미(丁未)년 ·<br>붉은 양의 해</div><div class="t">올해의 키워드: 여유와 재능</div></div></div>
+ <p class="t">2027년은 🕯️ 정화와 🐑 미토가 만난 정미년이에요. 풀과 꽃 같은 기운을 타고난 나에게 올해는 '여유와 재능'의 해예요.</p>
+ <p class="t" style="margin-top:6px">재능을 마음껏 펼치고 일상에 여유가 생기는 해입니다. 새로운 취미나 창작, 건강 관리에도 좋은 시기입니다.</p>
+ <p class="t" style="margin-top:8px"><b>💰 재물운</b> 재능으로 버는 돈이 생겨요. 부업이나 취미가 수입이 될 수 있어요.</p>
+ <p class="t"><b>💼 일·학업운</b> 실력을 인정받고 일이 즐거워져요.</p>
+ <p class="t"><b>💕 애정운</b> 연애운이 좋아요. 함께 여행하며 사이가 깊어져요.</p>
+ <div style="background:#16131A;border-radius:12px;padding:10px 12px;margin-top:10px">
+  <div style="font-size:13.5px;font-weight:900;margin-bottom:4px">🌟 좋은 달 TOP 3</div>
+  <p class="t"><b>7월</b> <span style="color:#CDB4F0">90점</span> 여유롭고 즐거운 달</p>
+  <p class="t"><b>8월</b> <span style="color:#CDB4F0">98점</span> 성실함이 보상받는 달 · 합</p>
+  <p class="t"><b>9월</b> <span style="color:#CDB4F0">90점</span> 기회가 많은 달 · 삼합</p>
+  <div style="font-size:13.5px;font-weight:900;margin:6px 0 4px">⚠️ 조심하면 좋은 달</div>
+  <p class="t"><b>4월</b> 경쟁과 지출을 조심하는 달</p>
+  <p class="t"><b>11월</b> 책임이 무거운 달 · 충</p>
+ </div></div></div>`;
+
 const shots = [
-  ['01', '타고난 <em>나의 사주팔자</em>를<br>한눈에', '생년월일시만 입력하면 바로 풀어 드려요', resultBar + `<div class="wrap">${birth}${pillarCard}${dmCard}</div>`],
-  ['02', '매일 아침,<br><em>오늘의 운세</em> 확인', '재물·애정·건강과 행운의 색·숫자까지', resultBar + `<div class="wrap">${birth}${fortuneCard}<div class="btn">💞 궁합 보기</div></div>`],
-  ['03', '우리 <em>궁합</em>은<br>몇 점일까?', '두 사람의 일간·배우자 자리·띠·오행으로 분석', compatScreen],
-  ['04', '<em>오행 분포</em>와<br>10년 <em>대운</em>의 흐름', '부족한 기운을 채우는 생활 팁까지', resultBar + `<div class="wrap">${elemCard}${daeunCard}</div>`],
-  ['05', '양력·음력·윤달까지<br><em>절기 기준</em>으로 정확하게', '입력한 정보는 휴대폰 밖으로 나가지 않아요', inputScreen],
+  ['01', '<em>2027 정미년</em><br>신년운세 미리 보기', '좋은 달 TOP 3와 조심할 달까지 알려 드려요', yearScreen],
+  ['02', '타고난 <em>나의 사주팔자</em>를<br>한눈에', '생년월일시만 입력하면 바로 풀어 드려요', resultBar + `<div class="wrap">${birth}${pillarCard}${dmCard}</div>`],
+  ['03', '매일 아침,<br><em>오늘의 운세</em> 확인', '재물·애정·건강과 행운의 색·숫자까지', resultBar + `<div class="wrap">${birth}${fortuneCard}<div class="btn">💞 궁합 보기</div></div>`],
+  ['04', '우리 <em>궁합</em>은<br>몇 점일까?', '두 사람의 일간·배우자 자리·띠·오행으로 분석', compatScreen],
+  ['05', '<em>오행 분포</em>와<br>10년 <em>대운</em>의 흐름', '부족한 기운을 채우는 생활 팁까지', resultBar + `<div class="wrap">${elemCard}${daeunCard}</div>`],
+  ['06', '양력·음력·윤달까지<br><em>절기 기준</em>으로 정확하게', '입력한 정보는 휴대폰 밖으로 나가지 않아요', inputScreen],
 ];
 
 const feature = `<!doctype html><html><head><meta charset="utf-8">${css}
@@ -155,7 +178,7 @@ ${[[60,50,3],[960,60,4],[900,420,3],[420,40,2],[520,450,3],[980,250,2],[30,400,2
 <div style="position:absolute;left:450px;top:120px">
  <div style="font-size:104px;font-weight:900;letter-spacing:-3px;line-height:1.1">사주<span style="color:#F6CF8A">사랑</span></div>
  <div style="font-size:36px;font-weight:500;color:#E5D6F2;margin-top:18px">오늘의 운세 · 궁합 · 사주풀이</div>
- <div style="font-size:26px;color:#F6CF8A;margin-top:26px;font-weight:700">✦ 무료 · 회원가입 없이 바로</div>
+ <div style="font-size:26px;color:#F6CF8A;margin-top:26px;font-weight:700">🎊 2027 신년운세 · 무료 · 회원가입 없이</div>
 </div></body></html>`;
 
 (async () => {
@@ -180,7 +203,7 @@ ${[[60,50,3],[960,60,4],[900,420,3],[420,40,2],[520,450,3],[980,250,2],[30,400,2
   const pv = await b.newPage({ viewport: { width: 1500, height: 900 }, deviceScaleFactor: 1 });
   await pv.setContent(`<body style="margin:0;background:#111;padding:20px">
    <img src="data:image/png;base64,${fs.readFileSync(`${OUT}/feature-graphic.png`).toString('base64')}" style="width:600px;display:block;margin:0 auto 20px">
-   <div style="display:flex;gap:14px;justify-content:center">${imgs.map(s=>`<img src="${s}" style="width:270px">`).join('')}</div></body>`);
+   <div style="display:flex;gap:14px;justify-content:center">${imgs.map(s=>`<img src="${s}" style="width:228px">`).join('')}</div></body>`);
   await pv.waitForTimeout(300);
   await pv.screenshot({ path: `${OUT}/store-preview.png`, fullPage: true });
   await b.close();
