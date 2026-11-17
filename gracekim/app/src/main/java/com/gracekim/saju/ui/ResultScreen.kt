@@ -30,6 +30,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -64,6 +65,7 @@ import com.gracekim.saju.core.Pillar
 import com.gracekim.saju.core.SajuCalculator
 import com.gracekim.saju.core.SajuChart
 import com.gracekim.saju.core.TenGod
+import com.gracekim.saju.core.YearReport
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.math.cos
@@ -79,7 +81,7 @@ fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Un
                 title = { Text("${name}의 사주", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     TextButton(onClick = onBack) {
-                        Text("〈 다시", color = MaterialTheme.colorScheme.onPrimary)
+                        Text("👥 목록", color = MaterialTheme.colorScheme.onPrimary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -110,14 +112,13 @@ fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Un
                     Text("💞 궁합 보기", style = MaterialTheme.typography.titleMedium)
                 }
             }
+            item { YearReportCard(chart) }
             item { PillarSection(chart) }
             item { OhaengSection(chart) }
             item { PersonaCard(chart) }
             item { AbilityCard(chart) }
             item { PalaceCard(chart) }
             item { DaeunCard(chart) }
-            item { YearFortuneCard(chart) }
-            item { MonthlyCard(chart) }
             item { GlossaryCard() }
             item {
                 Text(
@@ -801,81 +802,120 @@ private fun PillarText(p: Pillar, onHighlight: Boolean) {
     Text(p.korean, style = MaterialTheme.typography.labelSmall)
 }
 
-// ── 올해 운세 ────────────────────────────────────────────────
+// ── 신년운세 (올해 / 내년) ─────────────────────────────────────
 
 @Composable
-private fun YearFortuneCard(chart: SajuChart) {
-    val year = LocalDate.now().year
-    val pillar = SajuCalculator.yearPillarOf(year)
-    val stemGod = TenGod.of(chart.dayMaster, pillar.stem)
-    val branchGod = TenGod.of(chart.dayMaster, pillar.branch)
-    InfoCard("🎊 ${year}년 ${pillar.korean}(${pillar.hanja})년 운세") {
-        Text(
-            "올해는 ${Explain.stemEmoji(pillar.stem)} ${Explain.josa(pillar.stem.korean + pillar.stem.element.korean, "과", "와")} " +
-                "${Explain.animalEmoji(pillar.branch)} ${pillar.branch.animal}의 해예요.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Text(Interpretation.yearlyFortune(stemGod), style = MaterialTheme.typography.bodyMedium)
-        val areas = Detail.yearAreas(stemGod)
-        LifeLine("💰", "재물운", areas.money)
-        LifeLine("💼", "일·학업운", areas.work)
-        LifeLine("💕", "애정운", areas.love)
-        LifeLine("🍀", "건강운", areas.health)
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            KeywordChip(Explain.tenGodShort(stemGod).replace("·", " "))
-            if (branchGod != stemGod) KeywordChip(Explain.tenGodShort(branchGod).replace("·", " "))
+private fun YearReportCard(chart: SajuChart) {
+    val today = LocalDate.now()
+    val baseYear = Detail.sajuYearOf(today)
+    // 11월부터는 다음 해 신년운세를 먼저 보여 줍니다.
+    var year by rememberSaveable { mutableIntStateOf(if (today.monthValue >= 11) baseYear + 1 else baseYear) }
+    var showAllMonths by rememberSaveable { mutableStateOf(false) }
+    val age = year - chart.solarDate.year + 1
+    val report = remember(chart, year) { YearReport.build(chart, year, age) }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    "🎊 신년운세",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.weight(1f),
+                )
+                FilterChip(selected = year == baseYear, onClick = { year = baseYear }, label = { Text("${baseYear}년") })
+                FilterChip(selected = year == baseYear + 1, onClick = { year = baseYear + 1 }, label = { Text("${baseYear + 1}년") })
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier
+                        .size(70.dp)
+                        .clip(CircleShape)
+                        .background(report.pillar.stem.element.color()),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(Explain.animalEmoji(report.pillar.branch), fontSize = 22.sp)
+                        Text("${report.score}점", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+                Spacer(Modifier.width(12.dp))
+                Column {
+                    Text(
+                        report.title,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                    Text(
+                        "올해의 키워드: ${report.keyword}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                }
+            }
+            report.paragraphs.forEach {
+                Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+            }
+            LifeLine("💰", "재물운", report.areas.money)
+            LifeLine("💼", "일·학업운", report.areas.work)
+            LifeLine("💕", "애정운", report.areas.love)
+            LifeLine("🍀", "건강운", report.areas.health)
+
+            Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surface) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text("🌟 좋은 달 TOP 3", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    report.bestMonths.forEach { m -> MonthLine(m, highlight = true) }
+                    Spacer(Modifier.height(4.dp))
+                    Text("⚠️ 조심하면 좋은 달", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    report.cautionMonths.forEach { m -> MonthLine(m, highlight = false) }
+                }
+            }
+            TextButton(onClick = { showAllMonths = !showAllMonths }) {
+                Text(if (showAllMonths) "12개월 운세 접기 ▲" else "📅 12개월 운세 모두 보기 ▼")
+            }
+            if (showAllMonths) {
+                Text(
+                    "사주에서 한 해는 입춘(2월 4일경)에 시작하고, 매달은 절기(4~8일경)에 바뀌어요.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+                report.months.forEach { m -> MonthLine(m, highlight = false, showYear = true) }
+            }
         }
-        ExplainBox(
-            "올해 기운 자세히 보기",
-            "• 상반기 느낌(하늘 글자 ${pillar.stem.hanja}): ${stemGod.korean} — ${Explain.tenGodExplain(stemGod)}\n" +
-                "• 하반기 느낌(땅 글자 ${pillar.branch.hanja}): ${branchGod.korean} — ${Explain.tenGodExplain(branchGod)}",
-        )
     }
 }
 
 @Composable
-private fun MonthlyCard(chart: SajuChart) {
+private fun MonthLine(m: YearReport.ScoredMonth, highlight: Boolean, showYear: Boolean = false) {
     val today = LocalDate.now()
-    val sajuYear = Detail.sajuYearOf(today)
-    val months = Detail.monthlyFortunes(chart, sajuYear)
-    InfoCard("📅 월별 운세 (${sajuYear}년 2월 ~ ${sajuYear + 1}년 1월)") {
-        Text(
-            "사주에서 한 해는 입춘(2월 4일경)에 시작하고, 매달은 절기(4~8일경)에 바뀌어요.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        months.forEach { m ->
-            val isNow = m.calendarYear == today.year && m.calendarMonth == today.monthValue
-            Surface(
-                shape = RoundedCornerShape(10.dp),
-                color = if (isNow) MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f) else Color.Transparent,
-            ) {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.Top,
-                ) {
-                    Column(Modifier.widthIn(min = 64.dp)) {
-                        Text(
-                            (if (isNow) "▶ " else "") + "${m.calendarMonth}월",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Text(
-                            "${m.pillar.korean} · ${m.god.korean}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    Column(Modifier.weight(1f)) {
-                        Text(m.text, style = MaterialTheme.typography.bodyMedium)
-                        m.relation?.let {
-                            Text("· $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-                        }
-                    }
-                }
+    val isNow = m.month.calendarYear == today.year && m.month.calendarMonth == today.monthValue
+    Row(verticalAlignment = Alignment.Top) {
+        Column(Modifier.widthIn(min = 70.dp)) {
+            Text(
+                (if (isNow) "▶ " else "") + (if (showYear && m.month.calendarMonth == 1) "${m.month.calendarYear}년 " else "") + "${m.month.calendarMonth}월",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                "${m.score}점 · ${m.month.god.korean}",
+                style = MaterialTheme.typography.labelSmall,
+                color = if (highlight) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Column(Modifier.weight(1f)) {
+            Text(m.month.text, style = MaterialTheme.typography.bodyMedium)
+            m.month.relation?.let {
+                Text("· $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
             }
         }
     }

@@ -8,12 +8,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +30,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -58,6 +61,8 @@ data class FormData(
     val minute: String = "",
     val timeUnknown: Boolean = false,
     val longitudeCorrection: Boolean = true,
+    /** 이 사람 정보를 휴대폰에 저장할지 */
+    val saveProfile: Boolean = true,
 ) : Serializable {
     fun toBirthInput(): BirthInput = BirthInput(
         name = name.trim(),
@@ -104,6 +109,9 @@ fun InputScreen(
     intro: String = "태어난 날과 시간을 입력하면\n사주팔자와 오행, 대운, 오늘의 운세를 풀어 드립니다.",
     submitLabel: String = "사주 보기",
     onBack: (() -> Unit)? = null,
+    savedProfiles: List<FormData> = emptyList(),
+    onPickProfile: (FormData) -> Unit = {},
+    onDeleteProfile: (FormData) -> Unit = {},
 ) {
     var error by rememberSaveable { mutableStateOf<String?>(null) }
     val numberKeyboard = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next)
@@ -135,6 +143,10 @@ fun InputScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            if (savedProfiles.isNotEmpty()) {
+                SavedProfiles(savedProfiles, onPickProfile, onDeleteProfile)
+                Text("➕ 새로 입력하기", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            }
             Text(
                 intro,
                 style = MaterialTheme.typography.bodyLarge,
@@ -226,6 +238,10 @@ fun InputScreen(
                 }
             }
 
+            CheckRow("이 사람 정보 저장하기 (휴대폰 안에만 저장돼요)", form.saveProfile) {
+                onFormChange(form.copy(saveProfile = it))
+            }
+
             error?.let {
                 Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
             }
@@ -244,6 +260,61 @@ fun InputScreen(
             }
             Spacer(Modifier.height(24.dp))
         }
+    }
+}
+
+/** 저장된 사람 목록: 누르면 바로 결과, ✕로 삭제 */
+@Composable
+private fun SavedProfiles(
+    profiles: List<FormData>,
+    onPick: (FormData) -> Unit,
+    onDelete: (FormData) -> Unit,
+) {
+    var confirmDelete by remember { mutableStateOf<FormData?>(null) }
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text("👥 저장된 사람", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                "이름을 누르면 바로 사주를 볼 수 있어요.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            profiles.forEach { p ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onPick(p) }
+                        .padding(vertical = 8.dp),
+                ) {
+                    Text(if (p.gender == Gender.FEMALE) "👩" else "👨", modifier = Modifier.padding(end = 10.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(p.name.ifBlank { "이름 없음" }, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                        Text(
+                            "${if (p.calendarType == CalendarType.LUNAR) "음력" else "양력"} ${p.year}.${p.month}.${p.day}" +
+                                (if (p.timeUnknown) " · 시간 모름" else " · ${p.hour}시 ${p.minute.ifBlank { "0" }}분"),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    TextButton(onClick = { confirmDelete = p }) { Text("✕ 삭제") }
+                }
+            }
+        }
+    }
+    confirmDelete?.let { target ->
+        AlertDialog(
+            onDismissRequest = { confirmDelete = null },
+            title = { Text("삭제할까요?") },
+            text = { Text("${target.name.ifBlank { "이름 없음" }}님의 정보를 휴대폰에서 지웁니다.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDelete(target)
+                    confirmDelete = null
+                }) { Text("삭제") }
+            },
+            dismissButton = { TextButton(onClick = { confirmDelete = null }) { Text("취소") } },
+        )
     }
 }
 
