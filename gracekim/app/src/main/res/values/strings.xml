@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">사주사랑</string>
+    <string name="widget_title">사주사랑 · 오늘의 운세</string>
+    <string name="widget_empty">앱을 열어 생년월일을 저장해 주세요</string>
+    <string name="widget_desc">오늘의 운세 점수와 한 줄 운세를 홈 화면에서 확인해요</string>
+    <string name="notify_channel">아침 운세 알림</string>
 </resources>

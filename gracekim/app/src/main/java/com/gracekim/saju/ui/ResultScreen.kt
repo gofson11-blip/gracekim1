@@ -103,6 +103,7 @@ fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Un
             item { BirthInfo(chart) }
             item { SummaryCard(chart) }
             item { DailyFortuneCard(chart) }
+            item { BokCard(chart) }
             item {
                 Button(
                     onClick = onCompatibility,
@@ -120,6 +121,7 @@ fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Un
             item { AbilityCard(chart) }
             item { PalaceCard(chart) }
             item { DaeunCard(chart) }
+            item { SettingsCard() }
             item { GlossaryCard() }
             item {
                 Text(

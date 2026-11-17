@@ -14,8 +14,8 @@ android {
         applicationId = "com.gracekim.saju"
         minSdk = 26
         targetSdk = 35
-        versionCode = 10
-        versionName = "1.7.0"
+        versionCode = 11
+        versionName = "1.8.0"
     }
 
     signingConfigs {
@@ -77,5 +77,6 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("com.google.android.gms:play-services-ads:24.2.0")
+    implementation("androidx.work:work-runtime:2.10.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

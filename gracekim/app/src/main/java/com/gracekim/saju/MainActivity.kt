@@ -18,6 +18,8 @@ import com.gracekim.saju.core.Compatibility
 import com.gracekim.saju.core.Gender
 import com.gracekim.saju.core.SajuCalculator
 import com.gracekim.saju.data.ProfileStore
+import com.gracekim.saju.notify.MorningNotifier
+import com.gracekim.saju.widget.FortuneWidget
 import com.gracekim.saju.ui.CompatibilityScreen
 import com.gracekim.saju.ui.FormData
 import com.gracekim.saju.ui.InputScreen
@@ -29,6 +31,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         Ads.initialize(this)
+        MorningNotifier.ensureChannel(this)
+        MorningNotifier.schedule(this)
         setContent {
             SajuTheme {
                 SajuApp()
@@ -44,6 +48,7 @@ fun SajuApp() {
     val context = LocalContext.current
     val store = remember { ProfileStore(context) }
     var profiles by remember { mutableStateOf(store.load()) }
+    LaunchedEffect(profiles) { runCatching { FortuneWidget.updateAll(context) } }
 
     var screen by rememberSaveable { mutableStateOf(Screen.INPUT) }
     var form by rememberSaveable { mutableStateOf(FormData()) }
