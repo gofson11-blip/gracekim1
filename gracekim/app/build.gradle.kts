@@ -8,14 +8,14 @@ plugins {
 
 android {
     namespace = "com.gracekim.saju"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.gracekim.saju"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 12
-        versionName = "1.9.0"
+        targetSdk = 36
+        versionCode = 13
+        versionName = "1.9.1"
     }
 
     signingConfigs {
