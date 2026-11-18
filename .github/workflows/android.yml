@@ -31,14 +31,22 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: 사주 엔진 테스트 + APK 빌드 (테스트용·출시용)
-        run: ./gradlew :saju-core:test :app:assembleDebug :app:assembleRelease --stacktrace
+      - name: 사주 엔진 테스트 + APK 빌드 (테스트용·출시용) + Play 업로드용 AAB
+        env:
+          SAJU_UPLOAD_PASSWORD: ${{ secrets.SAJU_UPLOAD_PASSWORD }}
+        run: ./gradlew :saju-core:test :app:assembleDebug :app:assembleRelease :app:bundleRelease --stacktrace
 
       - name: APK 업로드
         uses: actions/upload-artifact@v4
         with:
           name: saju-app-debug-apk
           path: gracekim/app/build/outputs/apk/debug/*.apk
+
+      - name: Play 스토어 업로드용 AAB 보관
+        uses: actions/upload-artifact@v4
+        with:
+          name: saju-play-aab
+          path: gracekim/app/build/outputs/bundle/release/*.aab
 
       - name: 휴대폰 다운로드용 릴리스 갱신
         env:

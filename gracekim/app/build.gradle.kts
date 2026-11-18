@@ -27,6 +27,14 @@ android {
             keyAlias = "androiddebugkey"
             keyPassword = "android"
         }
+        // Google Play 출시용 업로드 키. 비밀번호는 저장소에 없고
+        // GitHub Secret(SAJU_UPLOAD_PASSWORD)으로만 전달됩니다.
+        create("upload") {
+            storeFile = file("upload.keystore")
+            storePassword = System.getenv("SAJU_UPLOAD_PASSWORD") ?: ""
+            keyAlias = "saju-upload"
+            keyPassword = System.getenv("SAJU_UPLOAD_PASSWORD") ?: ""
+        }
     }
 
     // ── AdMob 광고 ID ─────────────────────────────────────────────
@@ -44,8 +52,9 @@ android {
             buildConfigField("String", "ADMOB_BANNER_ID", "\"ca-app-pub-7777902414096561/6047752108\"")
             buildConfigField("String", "ADMOB_REWARDED_ID", "\"ca-app-pub-7777902414096561/3375301391\"")
             isMinifyEnabled = false
-            // 스토어 배포 전에는 별도의 업로드 키로 서명해야 합니다.
-            signingConfig = signingConfigs.getByName("debug")
+            // 업로드 키 비밀번호가 있으면(=GitHub 빌드) 출시용 키로, 없으면 테스트 키로 서명합니다.
+            signingConfig = if (System.getenv("SAJU_UPLOAD_PASSWORD").isNullOrEmpty())
+                signingConfigs.getByName("debug") else signingConfigs.getByName("upload")
         }
     }
 
