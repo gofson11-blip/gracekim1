@@ -31,7 +31,7 @@ object MonthGuide {
         val sajuYear = Detail.sajuYearOf(mid)
         val month = Detail.monthlyFortunes(chart, sajuYear).firstOrNull { it.calendarMonth == ym.monthValue }
         val monthText = month?.let { "${it.pillar.korean}월 · ${it.god.korean}(${Explain.tenGodShort(it.god)}) — ${it.text}" } ?: ""
-        val advice = month?.let { Detail.dailyTodo(it.god) }?.let { "이번 달에는 '${it.first}'에 힘을 쓰고, '${it.second}'은(는) 조심하세요." } ?: ""
+        val advice = month?.let { Detail.dailyTodo(it.god) }?.let { "이번 달에는 '${it.first}'에 힘을 쓰고, ${Explain.josa("'" + it.second + "'", "은", "는")} 조심하세요." } ?: ""
 
         return Guide(ym, good, caution, monthText, Detail.lucky(chart), advice)
     }

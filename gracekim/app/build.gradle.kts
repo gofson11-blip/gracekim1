@@ -14,8 +14,8 @@ android {
         applicationId = "com.gracekim.saju"
         minSdk = 26
         targetSdk = 36
-        versionCode = 13
-        versionName = "1.9.1"
+        versionCode = 14
+        versionName = "1.9.2"
     }
 
     signingConfigs {
