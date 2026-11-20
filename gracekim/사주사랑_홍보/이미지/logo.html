@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><style>*{margin:0}body{width:800px;height:800px}</style></head><body>
+<svg width="800" height="800" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e3f99"/><stop offset=".55" stop-color="#4a2a73"/><stop offset="1" stop-color="#2b1844"/></linearGradient>
+ <radialGradient id="glow" cx="256" cy="240" r="140" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8c5cb8" stop-opacity=".55"/><stop offset="1" stop-color="#8c5cb8" stop-opacity="0"/></radialGradient>
+ <linearGradient id="moon" x1="140" y1="150" x2="330" y2="370" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fbe3a8"/><stop offset="1" stop-color="#e9b766"/></linearGradient>
+ <linearGradient id="heart" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd0d6"/><stop offset="1" stop-color="#f2a3b4"/></linearGradient>
+ <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c9a37a"/><stop offset="1" stop-color="#8f6f86"/></linearGradient>
+ <mask id="cres"><rect width="512" height="512" fill="#000"/><circle cx="240" cy="260" r="108" fill="#fff"/><circle cx="286" cy="238" r="80" fill="#000"/></mask>
+</defs>
+<rect width="512" height="512" fill="url(#bg)"/>
+<circle cx="256" cy="256" r="160" fill="url(#glow)"/>
+<circle cx="256" cy="256" r="160" fill="none" stroke="url(#ring)" stroke-width="3"/>
+<circle cx="286" cy="238" r="80" fill="#6a4890" opacity=".6"/>
+<rect width="512" height="512" fill="url(#moon)" mask="url(#cres)"/>
+<path d="M298 296 C 262 270 252 250 258 232 C 264 214 288 212 298 230 C 308 212 332 214 338 232 C 344 250 334 270 298 296 Z" fill="url(#heart)"/>
+<path d="M398 116 Q401 142 427 145 Q401 148 398 174 Q395 148 369 145 Q395 142 398 116 Z" fill="#f0c97a"/>
+<circle cx="109" cy="370" r="8" fill="#e9be6e"/>
+<circle cx="403" cy="360" r="5" fill="#f3e6c4"/>
+</svg></body></html>
