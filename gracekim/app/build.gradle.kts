@@ -51,7 +51,10 @@ android {
             manifestPlaceholders["admobAppId"] = "ca-app-pub-7777902414096561~4028093423"
             buildConfigField("String", "ADMOB_BANNER_ID", "\"ca-app-pub-7777902414096561/6047752108\"")
             buildConfigField("String", "ADMOB_REWARDED_ID", "\"ca-app-pub-7777902414096561/3375301391\"")
-            isMinifyEnabled = false
+            // 코드 최적화·난독화(R8): Play Console 'DEX 코드 최적화' 요구사항
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             // 업로드 키 비밀번호가 있으면(=GitHub 빌드) 출시용 키로, 없으면 테스트 키로 서명합니다.
             signingConfig = if (System.getenv("SAJU_UPLOAD_PASSWORD").isNullOrEmpty())
                 signingConfigs.getByName("debug") else signingConfigs.getByName("upload")
@@ -87,5 +90,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("com.google.android.gms:play-services-ads:24.2.0")
     implementation("androidx.work:work-runtime:2.10.0")
+    // 광고 SDK가 끌어오는 오래된 fragment(1.1.0)를 최신 버전으로 올림
+    implementation("androidx.fragment:fragment:1.8.6")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
