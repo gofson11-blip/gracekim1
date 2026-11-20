@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&display=block" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:2048px;height:1152px;overflow:hidden;font-family:'Noto Sans KR',sans-serif;
+ background:radial-gradient(ellipse 1100px 700px at 30% 25%,#7a4aa3 0%,rgba(122,74,163,0) 70%),
+ linear-gradient(160deg,#5b3488 0%,#3f2466 50%,#2a1745 100%);position:relative}
+.star{position:absolute;border-radius:50%;background:#f3e6c4}
+.safe{position:absolute;left:406px;top:407px;width:1235px;height:338px;display:flex;align-items:center;justify-content:center;gap:56px}
+.icon{width:300px;height:300px;border-radius:66px;box-shadow:0 24px 60px rgba(0,0,0,.35);flex:none}
+.title{font-weight:900;font-size:150px;line-height:1;color:#fff;letter-spacing:-4px}
+.title span{color:#f3cf86}
+.sub{font-weight:500;font-size:48px;color:#e6dcf2;margin-top:22px;letter-spacing:-1px}
+.tag{font-weight:700;font-size:36px;color:#f3cf86;margin-top:16px}
+</style></head><body>
+<div id="stars"></div>
+<div class="safe">
+ <img class="icon" src="icon.png">
+ <div>
+  <div class="title">사주<span>사랑</span></div>
+  <div class="sub">오늘의 운세 · 궁합 · 사주풀이</div>
+  <div class="tag">매일 30초, 쉽게 보는 내 사주 ✦</div>
+ </div>
+</div>
+<script>
+const pts=[[120,90,6],[380,210,4],[700,70,5],[980,160,3],[1300,80,6],[1620,190,4],[1900,110,7],[260,520,4],[150,820,6],[420,1010,4],[820,930,5],[1180,1060,3],[1500,960,6],[1820,880,4],[1960,560,5],[1760,420,3],[560,360,3],[1420,300,4],[90,330,3],[1100,860,4]];
+const s=document.getElementById('stars');pts.forEach(([x,y,r])=>{const d=document.createElement('div');d.className='star';Object.assign(d.style,{left:x+'px',top:y+'px',width:r+'px',height:r+'px',opacity:.4+Math.random()*.5});s.appendChild(d)});
+</script></body></html>
