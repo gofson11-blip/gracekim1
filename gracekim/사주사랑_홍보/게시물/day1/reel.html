@@ -1,0 +1,75 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&display=block" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden}
+body{font-family:'Noto Sans KR','Noto Color Emoji',sans-serif;color:#fff;position:relative;
+ background:radial-gradient(ellipse 900px 900px at 50% 38%,#7b4ba6 0%,rgba(123,75,166,0) 70%),linear-gradient(170deg,#55307f 0%,#3b2161 55%,#22123a 100%)}
+#stars{position:absolute;inset:0}
+.star{position:absolute;border-radius:50%;background:#f6e9c8}
+.el{position:absolute;left:0;right:0;text-align:center;opacity:0;will-change:transform,opacity}
+.brand{position:absolute;top:250px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:18px;font-weight:700;font-size:40px;color:#e9dcf6;opacity:.9}
+.brand img{width:64px;height:64px;border-radius:50%}
+.big{font-weight:900;font-size:150px;line-height:1.15;letter-spacing:-4px}
+.mid{font-weight:900;font-size:112px;line-height:1.2;letter-spacing:-3px}
+.sm{font-weight:700;font-size:64px;line-height:1.35;color:#eadff7}
+.gold{color:#f3cf86}
+.chip{display:inline-block;padding:26px 56px;border-radius:999px;background:rgba(255,255,255,.12);border:3px solid rgba(243,207,134,.7);font-weight:700;font-size:80px;letter-spacing:4px;color:#fff}
+.card{display:inline-flex;align-items:center;gap:28px;width:640px;padding:34px 48px;margin:0 auto;border-radius:40px;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.18);font-weight:900;font-size:84px}
+.card span{font-size:84px}
+.logoBig{width:360px;height:360px;border-radius:50%;box-shadow:0 0 0 6px rgba(243,207,134,.35),0 30px 90px rgba(0,0,0,.45)}
+.disc{position:absolute;top:1450px;left:0;right:0;text-align:center;font-weight:500;font-size:34px;color:rgba(255,255,255,.6)}
+body.cover .disc{display:none}
+</style></head><body>
+<div id="stars"></div>
+<div class="brand" id="brand"><img src="logo.png">사주사랑</div>
+
+<!-- S1 0-3 -->
+<div class="el" data-t="0.15,3.1" style="top:640px"><div class="big">사주,</div></div>
+<div class="el" data-t="0.6,3.1" style="top:830px"><div class="big">어렵죠? 🤔</div></div>
+<!-- S2 3-6.6 -->
+<div class="el" data-t="3.2,6.6" style="top:660px"><div class="mid">제가 <span class="gold">30초</span>로</div></div>
+<div class="el" data-t="3.6,6.6" style="top:820px"><div class="mid">풀어드립니다</div></div>
+<!-- S3 6.6-10.2 -->
+<div class="el" data-t="6.7,10.2" style="top:600px"><div class="mid"><span class="gold">생년월일</span>만</div></div>
+<div class="el" data-t="7.0,10.2" style="top:760px"><div class="mid">있으면</div></div>
+<div class="el" data-t="7.6,10.2" style="top:1010px"><div class="chip" id="date"></div></div>
+<!-- S4 10.2-14.6 -->
+<div class="el" data-t="10.3,14.6" style="top:470px"><div class="sm">이것까지 볼 수 있어요</div></div>
+<div class="el" data-t="10.8,14.6" style="top:620px"><div class="card"><span>✨</span>성격</div></div>
+<div class="el" data-t="11.5,14.6" style="top:850px"><div class="card"><span>💕</span>연애운</div></div>
+<div class="el" data-t="12.2,14.6" style="top:1080px"><div class="card"><span>💰</span>재물운</div></div>
+<!-- S5 14.6-18.2 -->
+<div class="el" data-t="14.7,18.2" style="top:640px"><div class="mid">매일 <span class="gold">쉽고 재밌는</span></div></div>
+<div class="el" data-t="15.1,18.2" style="top:800px"><div class="mid">사주 이야기</div></div>
+<div class="el" data-t="15.6,18.2" style="top:1010px"><div class="sm">여기서 올려드려요 📅</div></div>
+<!-- S6 18.2-23 -->
+<div class="el" data-t="18.3,99" style="top:440px"><img class="logoBig" src="logo.png"></div>
+<div class="el" data-t="18.7,99" style="top:860px"><div class="big">사주<span class="gold">사랑</span></div></div>
+<div class="el" data-t="19.3,99" style="top:1080px"><div class="sm">팔로우하고 매일 받아보세요 🔮</div></div>
+
+<div class="disc">※ 재미로 보는 운세입니다</div>
+<script>
+// deterministic stars
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const stars=[];const box=document.getElementById('stars');
+for(let i=0;i<70;i++){const d=document.createElement('div');d.className='star';const r=2+rnd()*5;
+ Object.assign(d.style,{left:rnd()*1080+'px',top:rnd()*1920+'px',width:r+'px',height:r+'px'});box.appendChild(d);stars.push({d,ph:rnd()*6.28,sp:.6+rnd()*1.6,dy:rnd()*14});}
+const els=[...document.querySelectorAll('.el')].map(e=>{const [a,b]=e.dataset.t.split(',').map(Number);return{e,a,b}});
+const ease=x=>1-Math.pow(1-x,3);
+const DATE='1995. 03. 02';
+window.setTime=function(t){
+ stars.forEach(s=>{s.d.style.opacity=(.35+.6*(.5+.5*Math.sin(s.ph+t*s.sp))).toFixed(3);s.d.style.transform=`translateY(${(-t*s.dy).toFixed(1)}px)`});
+ els.forEach(({e,a,b})=>{let o=0,y=50,sc=1;
+  if(t>=a&&t<b){const p=Math.min(1,(t-a)/.4);o=ease(p);y=50*(1-ease(p));sc=.94+.06*ease(p);
+   const q=(b-t)/.3;if(q<1){o*=Math.max(0,q);y=-30*(1-q)}}
+  e.style.opacity=o.toFixed(3);e.style.transform=`translateY(${y.toFixed(1)}px) scale(${sc.toFixed(3)})`});
+ const n=Math.max(0,Math.min(DATE.length,Math.floor((t-7.9)/0.09)));const de=document.getElementById('date');if(de)de.textContent=(DATE.slice(0,n)||' ')+(t>7.6&&t<10.2&&Math.floor(t*2)%2===0?'|':' ');
+ const lb=document.querySelector('.logoBig');if(t>18.3){const k=1+.025*Math.sin((t-18.3)*3);lb.style.transform=`scale(${k.toFixed(3)})`}
+};
+window.setCover=function(){document.body.classList.add('cover');els.forEach(({e})=>e.style.opacity=0);
+ document.querySelectorAll('.el').forEach(e=>e.remove());
+ const c=document.createElement('div');c.innerHTML=`<div style="position:absolute;top:560px;left:0;right:0;text-align:center">
+ <div class="big">사주,</div><div class="big"><span class="gold">30초</span>면 끝</div>
+ <div class="sm" style="margin-top:50px">매일 쉽게 풀어드림 🔮</div></div>`;document.body.appendChild(c);setTime(3)};
+</script></body></html>
