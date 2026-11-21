@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +45,7 @@ import com.gracekim.saju.core.Explain
 import com.gracekim.saju.core.SajuChart
 import com.gracekim.saju.core.Tarot
 import com.gracekim.saju.core.Zodiac
+import com.gracekim.saju.data.BokStore
 import java.time.LocalDate
 
 private val Gold = Color(0xFFE8B66F)
@@ -52,14 +54,16 @@ private val Ink = Color(0xFF2E1146)
 // ── 🃏 오늘의 타로 ────────────────────────────────────────────
 
 @Composable
-fun TarotSection(chart: SajuChart) {
+fun TarotSection(chart: SajuChart, bokTick: Int = 0, onBokChanged: () -> Unit = {}) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("saju_tarot", Context.MODE_PRIVATE) }
     val today = LocalDate.now()
-    val input = chart.input
-    val personKey = "${input.name}|${input.year}-${input.month}-${input.day}|${input.time}"
+    val personKey = personKeyOf(chart)
     val prefKey = "${today.toEpochDay()}|$personKey"
     var pick by remember(prefKey) { mutableIntStateOf(prefs.getInt(prefKey, -1)) }
+    var extra by remember(prefKey) { mutableIntStateOf(prefs.getInt("extra|$prefKey", 0)) }
+    val bok = remember { BokStore(context) }
+    val bokCount = remember(bokTick, extra) { bok.state().count }
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -111,11 +115,67 @@ fun TarotSection(chart: SajuChart) {
                             .padding(12.dp),
                     )
                 }
+                // 🧧 복주머니로 한 장 더 (같은 카드가 겹치지 않게)
+                val extras = remember(personKey, today, pick, extra) {
+                    val used = mutableSetOf(d.card.name)
+                    val list = mutableListOf<Tarot.Draw>()
+                    var p = 3
+                    while (list.size < extra && p < 60) {
+                        val x = Tarot.draw(personKey, today, p++)
+                        if (used.add(x.card.name)) list.add(x)
+                    }
+                    list
+                }
+                extras.forEachIndexed { i, x -> ExtraCard(i + 2, x) }
+                if (extra < BokStore.TAROT_EXTRA_MAX) {
+                    val enough = bokCount >= BokStore.TAROT_COST
+                    OutlinedButton(
+                        onClick = {
+                            if (bok.spend(BokStore.TAROT_COST)) {
+                                extra += 1
+                                prefs.edit().putInt("extra|$prefKey", extra).apply()
+                                onBokChanged()
+                            }
+                        },
+                        enabled = enough,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            if (enough) "🧧 복주머니 ${BokStore.TAROT_COST}개로 한 장 더 뽑기 (오늘 ${extra}/${BokStore.TAROT_EXTRA_MAX})"
+                            else "복주머니가 부족해요 · 출석이나 광고로 모아 보세요",
+                        )
+                    }
+                }
                 Text(
-                    "카드는 하루에 한 장이에요. 내일 새로운 카드를 뽑을 수 있어요. (재미로 보는 타로예요)",
+                    "무료 카드는 하루에 한 장, 복주머니로 하루 최대 ${BokStore.TAROT_EXTRA_MAX}장 더 뽑을 수 있어요. (재미로 보는 타로예요)",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExtraCard(order: Int, x: Tarot.Draw) {
+    Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.surfaceVariant) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            verticalAlignment = Alignment.Top,
+        ) {
+            CardFace(x, Modifier.width(72.dp))
+            Spacer(Modifier.width(10.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    "${order}번째 카드 · ${x.card.name} ${if (x.reversed) "🔄" else "✨"}",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text("키워드: ${x.card.keyword}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                Text(if (x.reversed) x.card.reversed else x.card.upright, style = MaterialTheme.typography.bodySmall)
+                Text("💡 ${x.card.advice}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
             }
         }
     }

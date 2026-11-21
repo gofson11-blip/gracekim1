@@ -77,6 +77,7 @@ import kotlin.math.sin
 fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Unit) {
     val name = chart.input.name.ifBlank { "나" }
     var tab by rememberSaveable { mutableIntStateOf(0) }
+    var bokTick by remember { mutableIntStateOf(0) }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -108,7 +109,7 @@ fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Un
             if (tab == 0) {
                 item { SummaryCard(chart) }
                 item { DailyFortuneCard(chart) }
-                item { BokCard(chart) }
+                item { BokCard(chart, bokTick) { bokTick++ } }
                 item {
                     Button(
                         onClick = onCompatibility,
@@ -120,7 +121,7 @@ fun ResultScreen(chart: SajuChart, onBack: () -> Unit, onCompatibility: () -> Un
                     }
                 }
                 item { YearReportCard(chart) }
-                item { TarotSection(chart) }
+                item { TarotSection(chart, bokTick) { bokTick++ } }
                 item { ZodiacSection(chart) }
                 item { SettingsCard() }
                 item {

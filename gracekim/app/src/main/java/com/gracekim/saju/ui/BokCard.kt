@@ -33,14 +33,16 @@ import java.time.format.DateTimeFormatter
 
 /** 🧧 복주머니 출석 체크 + 이달의 행운 처방전 */
 @Composable
-fun BokCard(chart: SajuChart) {
+fun BokCard(chart: SajuChart, bokTick: Int = 0, onBokChanged: () -> Unit = {}) {
     val context = LocalContext.current
     val store = remember { BokStore(context) }
-    var state by remember { mutableStateOf(store.state()) }
+    var state by remember(bokTick) { mutableStateOf(store.state()) }
     var message by remember { mutableStateOf<String?>(null) }
     val rewardedAd = rememberRewardedAd()
     val ym = YearMonth.now()
-    val unlocked = state.unlockedMonth == ym.toString()
+    val personKey = personKeyOf(chart)
+    val whose = chart.input.name.takeIf { it.isNotBlank() }?.let { "${it}님의" } ?: "나의"
+    var unlocked by remember(bokTick, personKey) { mutableStateOf(store.isUnlocked(ym, personKey)) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -59,6 +61,7 @@ fun BokCard(chart: SajuChart) {
                 onClick = {
                     val got = store.checkIn()
                     state = store.state()
+                    onBokChanged()
                     message = if (got > 1) "🎉 7일 연속 출석! 복주머니 ${got}개를 받았어요." else "🧧 복주머니 1개를 받았어요!"
                 },
                 enabled = !state.checkedToday,
@@ -71,6 +74,7 @@ fun BokCard(chart: SajuChart) {
                     rewardedAd.show {
                         store.adReward()
                         state = store.state()
+                        onBokChanged()
                         message = "🧧 복주머니 2개를 받았어요!"
                     }
                 },
@@ -83,12 +87,17 @@ fun BokCard(chart: SajuChart) {
 
             HorizontalDivider()
             Text(
-                "🔮 ${ym.monthValue}월의 행운 처방전 (복주머니 ${BokStore.COST}개)",
+                "🔮 $whose ${ym.monthValue}월 행운 처방전 (복주머니 ${BokStore.COST}개)",
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
             )
             if (unlocked) {
                 MonthGuideContent(MonthGuide.of(chart, ym))
+                Text(
+                    "👨‍👩‍👧 목록에 저장한 가족·친구의 처방전도 한 사람당 복주머니 ${BokStore.COST}개로 열 수 있어요. (위 👥 목록에서 사람을 골라 보세요)",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             } else {
                 Text(
                     "이번 달 나에게 좋은 날 TOP 3, 조심할 날, 이달의 흐름과 행운 아이템을 알려 드려요.",
@@ -96,7 +105,11 @@ fun BokCard(chart: SajuChart) {
                 )
                 Button(
                     onClick = {
-                        if (store.unlockMonth(ym)) state = store.state()
+                        if (store.unlockMonth(ym, personKey)) {
+                            unlocked = true
+                            state = store.state()
+                            onBokChanged()
+                        }
                     },
                     enabled = state.count >= BokStore.COST,
                     modifier = Modifier.fillMaxWidth(),

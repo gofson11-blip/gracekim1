@@ -13,7 +13,6 @@ class BokStore(context: Context) {
         val streak: Int,
         val checkedToday: Boolean,
         val adUsedToday: Boolean,
-        val unlockedMonth: String,
     )
 
     fun state(today: LocalDate = LocalDate.now()): State {
@@ -25,7 +24,6 @@ class BokStore(context: Context) {
             streak = if (last == day || last == day - 1) streak else 0,
             checkedToday = last == day,
             adUsedToday = prefs.getLong(KEY_LAST_AD, Long.MIN_VALUE) == day,
-            unlockedMonth = prefs.getString(KEY_UNLOCKED, "") ?: "",
         )
     }
 
@@ -55,12 +53,28 @@ class BokStore(context: Context) {
         return 2
     }
 
-    /** 복주머니 [cost]개로 이번 달 처방전 열기 */
-    fun unlockMonth(ym: YearMonth, cost: Int = COST): Boolean {
+    /** [personKey] 사람의 [ym] 처방전이 열려 있는지 (예전 버전에서 연 달은 모두에게 열린 것으로 봅니다) */
+    fun isUnlocked(ym: YearMonth, personKey: String): Boolean =
+        prefs.getString(KEY_UNLOCKED, "") == ym.toString() ||
+            (prefs.getStringSet(KEY_UNLOCKED_SET, emptySet()) ?: emptySet()).contains("$ym#$personKey")
+
+    /** 복주머니 [cost]개로 [personKey] 사람의 이번 달 처방전 열기 */
+    fun unlockMonth(ym: YearMonth, personKey: String, cost: Int = COST): Boolean {
+        if (isUnlocked(ym, personKey)) return true
+        if (!spend(cost)) return false
+        val set = (prefs.getStringSet(KEY_UNLOCKED_SET, emptySet()) ?: emptySet())
+            .filter { it.startsWith("$ym#") } // 지난 달 기록은 정리
+            .toMutableSet()
+        set.add("$ym#$personKey")
+        prefs.edit().putStringSet(KEY_UNLOCKED_SET, set).apply()
+        return true
+    }
+
+    /** 복주머니 [n]개 사용. 모자라면 false */
+    fun spend(n: Int): Boolean {
         val count = prefs.getInt(KEY_COUNT, 0)
-        if (prefs.getString(KEY_UNLOCKED, "") == ym.toString()) return true
-        if (count < cost) return false
-        prefs.edit().putInt(KEY_COUNT, count - cost).putString(KEY_UNLOCKED, ym.toString()).apply()
+        if (count < n) return false
+        prefs.edit().putInt(KEY_COUNT, count - n).apply()
         return true
     }
 
@@ -71,5 +85,8 @@ class BokStore(context: Context) {
         private const val KEY_LAST_CHECK = "last_check"
         private const val KEY_LAST_AD = "last_ad"
         private const val KEY_UNLOCKED = "unlocked_month"
+        private const val KEY_UNLOCKED_SET = "unlocked_people"
+        const val TAROT_COST = 1
+        const val TAROT_EXTRA_MAX = 3
     }
 }
