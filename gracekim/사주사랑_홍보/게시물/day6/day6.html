@@ -1,0 +1,68 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700;900&display=block" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden}
+body{font-family:'Noto Sans KR','Noto Color Emoji',sans-serif;color:#fff;position:relative;
+ background:radial-gradient(ellipse 900px 900px at 50% 38%,#7b4ba6 0%,rgba(123,75,166,0) 70%),linear-gradient(170deg,#55307f 0%,#3b2161 55%,#22123a 100%)}
+#stars{position:absolute;inset:0}.star{position:absolute;border-radius:50%;background:#f6e9c8}
+.el{position:absolute;left:0;right:0;text-align:center;opacity:0}
+.brand{position:absolute;top:250px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:18px;font-weight:700;font-size:40px;color:#e9dcf6;opacity:.9}
+.brand img{width:64px;height:64px;border-radius:50%}
+.big{font-weight:900;font-size:140px;line-height:1.15;letter-spacing:-4px}
+.mid{font-weight:900;font-size:108px;line-height:1.2;letter-spacing:-3px}
+.sm{font-weight:700;font-size:60px;line-height:1.4;color:#eadff7}
+.gold{color:#f3cf86}
+.emo{font-size:200px;line-height:1}
+.panel{width:880px;margin:0 auto;padding:60px 40px;border-radius:56px;background:rgba(255,255,255,.09);border:2px solid rgba(255,255,255,.16)}
+.row{display:flex;justify-content:center;gap:36px}
+.ani{display:flex;flex-direction:column;align-items:center;gap:18px;font-weight:900;font-size:64px}
+.ani .e{font-size:170px;line-height:1;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center}
+.logoBig{width:320px;height:320px;border-radius:50%;box-shadow:0 0 0 6px rgba(243,207,134,.35),0 30px 90px rgba(0,0,0,.45)}
+.disc{position:absolute;top:1450px;left:0;right:0;text-align:center;font-weight:500;font-size:34px;color:rgba(255,255,255,.6)}
+body.cover .disc{display:none}
+</style></head><body>
+<div id="stars"></div>
+<div class="brand"><img src="logo.png">사주사랑</div>
+<div class="el" data-t="-1,3.4" style="top:560px"><div class="sm">사주에서 '나 자신'을 뜻하는 글자</div></div>
+<div class="el" data-t="-1,3.4" style="top:680px"><div class="big gold">일간</div></div>
+<div class="el" data-t="-1,3.4" style="top:900px"><div class="sm">태어난 날로 정해져요<br>나는 어떤 타입일까? (2편)</div></div>
+<div class="el" data-t="3.4,7" style="top:470px"><div class="panel">
+<div class="emo">🌾</div><div class="mid" style="margin-top:30px">기토<span class="gold">(己土)</span></div>
+<div class="sm" style="margin-top:24px">논밭처럼 실속 있고<br>꼼꼼한 타입</div></div></div>
+<div class="el" data-t="7,10.6" style="top:470px"><div class="panel">
+<div class="emo">🪨</div><div class="mid" style="margin-top:30px">경금<span class="gold">(庚金)</span></div>
+<div class="sm" style="margin-top:24px">바위처럼 의리 있고<br>강단 있는 타입</div></div></div>
+<div class="el" data-t="10.6,14.2" style="top:470px"><div class="panel">
+<div class="emo">💎</div><div class="mid" style="margin-top:30px">신금<span class="gold">(辛金)</span></div>
+<div class="sm" style="margin-top:24px">보석처럼 깔끔하고 섬세한<br>완벽주의</div></div></div>
+<div class="el" data-t="14.2,17.8" style="top:470px"><div class="panel">
+<div class="emo">🌊</div><div class="mid" style="margin-top:30px">임수<span class="gold">(壬水)</span></div>
+<div class="sm" style="margin-top:24px">바다처럼 스케일 큰<br>자유로운 영혼</div></div></div>
+<div class="el" data-t="17.8,21.4" style="top:470px"><div class="panel">
+<div class="emo">🌧️</div><div class="mid" style="margin-top:30px">계수<span class="gold">(癸水)</span></div>
+<div class="sm" style="margin-top:24px">빗물처럼 감수성 풍부한<br>공감형</div></div></div>
+<div class="el" data-t="21.5,99" style="top:440px"><img class="logoBig" src="logo.png"></div>
+<div class="el" data-t="21.8,99" style="top:830px"><div class="mid">내 <span class="gold">일간</span>은 뭘까?</div></div>
+<div class="el" data-t="22.3,99" style="top:1010px"><div class="sm">사주사랑 앱에서 곧 확인하세요 📱<br>팔로우하고 기다려 주세요</div></div>
+<div class="disc">※ 재미로 보는 운세입니다</div>
+<script>
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const stars=[];const box=document.getElementById('stars');
+for(let i=0;i<70;i++){const d=document.createElement('div');d.className='star';const r=2+rnd()*5;
+ Object.assign(d.style,{left:rnd()*1080+'px',top:rnd()*1920+'px',width:r+'px',height:r+'px'});box.appendChild(d);stars.push({d,ph:rnd()*6.28,sp:.6+rnd()*1.6,dy:rnd()*14});}
+const els=[...document.querySelectorAll('.el')].map(e=>{const [a,b]=e.dataset.t.split(',').map(Number);return{e,a,b}});
+const ease=x=>1-Math.pow(1-x,3);
+window.setTime=function(t){
+ stars.forEach(s=>{s.d.style.opacity=(.35+.6*(.5+.5*Math.sin(s.ph+t*s.sp))).toFixed(3);s.d.style.transform=`translateY(${(-t*s.dy).toFixed(1)}px)`});
+ els.forEach(({e,a,b})=>{let o=0,y=50,sc=1;
+  if(t>=a&&t<b){const p=Math.min(1,(t-a)/.4);o=ease(p);y=50*(1-ease(p));sc=.94+.06*ease(p);
+   const q=(b-t)/.3;if(q<1){o*=Math.max(0,q);y=-30*(1-q)}}
+  e.style.opacity=o.toFixed(3);e.style.transform=`translateY(${y.toFixed(1)}px) scale(${sc.toFixed(3)})`});
+ const lb=document.querySelector('.logoBig');if(lb&&t>0){lb.style.transform=`scale(${(1+.025*Math.sin(t*3)).toFixed(3)})`}
+};
+window.setCover=function(){document.body.classList.add('cover');document.querySelectorAll('.el').forEach(e=>e.remove());
+ const c=document.createElement('div');c.innerHTML=document.getElementById('cover').innerHTML;document.body.appendChild(c);setTime(3)};
+</script>
+<template id="cover"><div style="position:absolute;top:560px;left:0;right:0;text-align:center"><div class="big">태어난 날로</div><div class="big">보는 <span class="gold">내 성격</span></div><div class="sm" style="margin-top:50px">일간 2편 🌾🪨💎🌊🌧️</div></div></template>
+</body></html>
