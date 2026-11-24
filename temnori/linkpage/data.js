@@ -10,7 +10,8 @@ const ITEMS = [
   { ep:4, date:"2026-11-13T12:00", cats:["침구","청소"], name:"벤트론스 침구 청소기 (UV·듀얼브러시)", desc:"이불·소파·쿠션 먼지를 쓱 밀어서", img:"img/ep04.jpg", url:"https://link.coupang.com/a/iy2S9jyhlk" },
   { ep:5, date:"2026-11-16T12:00", cats:["주방","정리"], name:"한누네 냉장고 정리함 4개 세트", desc:"국내생산, 손잡이로 쏙 꺼내 쓰는 정리함", img:"img/ep05.jpg", url:"https://link.coupang.com/a/iBM63LdPNs" },
   { ep:6, date:"2026-11-18T12:00", cats:["주방"], name:"조앤제이 국산 김장매트", desc:"테두리 있어서 양념 안 튀어요, 10~100포기 사이즈", img:"img/ep06.jpg", url:"https://link.coupang.com/a/iEpUmrKynk" },
-  { ep:7, date:"2026-11-20T12:00", cats:["주방","정리"], name:"88그로스 진공 밀폐용기 5종 + 전동펌프", desc:"뚜껑에 펌프 대고 꾹, 공기 빼서 보관", img:"img/ep07.jpg", url:"https://link.coupang.com/a/iF0zM4ombc" }
+  { ep:7, date:"2026-11-20T12:00", cats:["주방","정리"], name:"88그로스 진공 밀폐용기 5종 + 전동펌프", desc:"뚜껑에 펌프 대고 꾹, 공기 빼서 보관", img:"img/ep07.jpg", url:"https://link.coupang.com/a/iF0zM4ombc" },
+  { ep:8, date:"2026-11-25T12:00", cats:["욕실","청소"], name:"대쉬 틈세척 틈새브러시", desc:"L자 솔로 타일 줄눈·벽 모서리까지 한 번에", img:"img/ep08.jpg", url:"https://link.coupang.com/a/iPu9jFoByK" }
 ];
 
 const TIPS = [
